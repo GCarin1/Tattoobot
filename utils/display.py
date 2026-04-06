@@ -10,16 +10,63 @@ from rich import box
 
 console = Console()
 
+ASCII_LOGO = r"""
+ ___________        __    __              ________        __
+|           |      |  |  |  |            |        |      |  |
+|___     ___|  __ _|  |_ |  |_  ___   ___|   __   | ___  |  |_
+    |   |     / _` |  __||  __|/ _ \ / _ |  |__|  |/ _ \ |  __|
+    |   |    | (_| |  |_ |  |_| (_) | (_||   __   | (_) ||  |_
+    |___|     \__,_|\__| \__| \___/ \___||__|  |__|\___/  \__|
+                           C O P I L O T
+"""
+
+MENU_OPTIONS = [
+    ("1", "Engajamento Diario", "Perfis + sugestoes de comentarios IA", "engage"),
+    ("2", "Gerar Legendas", "Legendas com SEO, hashtags e CTA", "caption"),
+    ("3", "Ideias de Conteudo", "Sugestoes criativas para Instagram", "ideas"),
+    ("4", "Spy de Concorrentes", "Monitorar perfis de referencia", "spy"),
+    ("5", "Growth Tracker", "Registrar e ver metricas", "growth"),
+    ("6", "Configuracoes", "Gerenciar settings do bot", "config"),
+    ("0", "Sair", "Encerrar o TattooBot", "exit"),
+]
+
 
 def show_banner() -> None:
-    """Exibe banner do TattooBot."""
-    banner = Text()
-    banner.append("  TattooBot Copilot  ", style="bold white on rgb(80,20,120)")
-    banner.append(" v1.0", style="dim")
+    """Exibe banner do TattooBot com ASCII art."""
+    console.print(ASCII_LOGO, style="bold magenta")
+    console.print("  [bold white]Seu assistente de crescimento no Instagram[/bold white]", justify="center")
+    console.print("  [dim]v1.0 | 100% seguro | IA local via Ollama[/dim]", justify="center")
     console.print()
-    console.print(banner)
-    console.print("  Seu assistente de crescimento no Instagram", style="dim italic")
+
+
+def show_menu() -> str | None:
+    """Exibe menu interativo e retorna a opcao escolhida."""
+    table = Table(
+        box=box.HEAVY_EDGE,
+        border_style="magenta",
+        show_header=False,
+        padding=(0, 2),
+        expand=True,
+    )
+    table.add_column("Tecla", style="bold yellow", width=6, justify="center")
+    table.add_column("Comando", style="bold white", width=24)
+    table.add_column("Descricao", style="dim")
+
+    for key, name, desc, _ in MENU_OPTIONS:
+        if key == "0":
+            table.add_row(f"[red]{key}[/red]", f"[red]{name}[/red]", f"[dim red]{desc}[/dim red]")
+        else:
+            table.add_row(key, name, desc)
+
+    console.print(table)
     console.print()
+
+    while True:
+        answer = console.input("[bold cyan]Escolha uma opcao > [/bold cyan]").strip()
+        for key, _, _, action in MENU_OPTIONS:
+            if answer == key:
+                return action
+        console.print("[red]Opcao invalida. Tente novamente.[/red]")
 
 
 def show_panel(title: str, content: str, style: str = "cyan") -> None:
