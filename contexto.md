@@ -118,3 +118,15 @@
 
 ### Teste realizado
 - Spy de @florio.tattoo: coletou bio ("BlackWork & Preto e Vermelho"), 292 seguidores, 23 posts, um post recente com legenda real ("Se voce ta vendo esse video..."), e info sobre reels
+
+---
+
+## 06/04/2026 - Aumento do timeout do Ollama
+
+### Problema
+- A opcao 3 (Ideias de Conteudo) estava falhando com erro de timeout ao tentar gerar as 7 ideias de conteudo
+- O limite de 60s era insuficiente para modelos maiores gerarem respostas longas e detalhadas
+
+### O que foi corrigido
+- `config.py`: `OLLAMA_TIMEOUT` aumentado de `60` para `180` segundos
+- O limite maior evita timeouts ao gerar conteudos mais elaborados (7 ideias com formato, titulo, descricao, dica e hashtag cada)

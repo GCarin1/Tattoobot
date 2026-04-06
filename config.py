@@ -24,7 +24,7 @@ USER_AGENTS: list[str] = [
 
 # Limites de seguranca
 MAX_REQUESTS_PER_SESSION: int = 30
-OLLAMA_TIMEOUT: int = 60
+OLLAMA_TIMEOUT: int = 180
 
 # Versao
 VERSION: str = "1.0.0"
