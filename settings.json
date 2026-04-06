@@ -1,0 +1,18 @@
+{
+  "hashtags": [
+    "blackworktattoo",
+    "tattooart",
+    "tattoobrasil",
+    "blackworkers",
+    "tatuagem"
+  ],
+  "profiles_per_day": 10,
+  "ollama_model": "llama3",
+  "ollama_url": "http://localhost:11434",
+  "language": "pt-br",
+  "competitor_profiles": [],
+  "tattoo_style": "blackwork",
+  "artist_name": "Carini",
+  "artist_city": "Sao Paulo",
+  "scraping_delay_seconds": 3
+}
