@@ -45,3 +45,28 @@
 - Backup automatico de arquivos JSON
 - Interface bonita com Rich
 - Ollama como IA local (sem dependencia de APIs externas pagas)
+
+---
+
+## 06/04/2026 - Menu interativo + correcao do scraper
+
+### Menu interativo com ASCII art
+- Adicionado um logo ASCII grande do TattooBot no banner (display.py)
+- Criado menu interativo que aparece quando o usuario roda `python main.py` sem argumentos
+- O menu mostra todas as opcoes numeradas (1 a 6 + 0 para sair) em uma tabela estilizada
+- Cada modulo (spy, growth, config) ganhou submenu proprio com opcoes numeradas
+- Apos cada acao, o usuario pressiona Enter para voltar ao menu principal
+- Os comandos diretos (ex: `python main.py engage`) continuam funcionando normalmente
+
+### Correcao do scraper
+- Problema: tanto o Instagram quanto o DuckDuckGo estavam bloqueando as requisicoes, fazendo o comando `engage` falhar sempre
+- Solucao: adicionados multiplos fallbacks de busca web em cadeia:
+  1. Scraping direto do Instagram (tentativa original)
+  2. Busca via Bing (novo)
+  3. Busca via DuckDuckGo (ja existia)
+  4. Busca via Google (novo)
+  5. Sugestoes de hashtags do nicho como ultimo recurso (novo)
+- Criada funcao generica `_extract_instagram_data()` para extrair username e dados de qualquer resultado de busca
+- Melhorados os headers HTTP para parecerem mais com um navegador real
+- Adicionado fallback de busca web tambem para o scraping de perfis de concorrentes
+- O scraper agora nao depende de uma unica fonte e tenta varias alternativas antes de desistir
