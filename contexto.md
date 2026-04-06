@@ -70,3 +70,32 @@
 - Melhorados os headers HTTP para parecerem mais com um navegador real
 - Adicionado fallback de busca web tambem para o scraping de perfis de concorrentes
 - O scraper agora nao depende de uma unica fonte e tenta varias alternativas antes de desistir
+
+---
+
+## 06/04/2026 - Correcao definitiva do scraper (webscraping funcionando)
+
+### Problema diagnosticado
+- Testei todas as fontes de dados e descobri que:
+  - Instagram retorna 403 (bloqueio total para scraping direto sem login)
+  - Bing retorna 403 nesse ambiente
+  - DuckDuckGo funciona mas os URLs estavam em formato redirect (`//duckduckgo.com/l/?uddg=URL_REAL_ENCODED`), o scraper nao estava decodificando esses URLs
+  - Google retorna HTML mas sem links uteis no formato esperado
+  - Os perfis placeholder `_explore_*` que eram gerados como fallback eram filtrados pelo detector de bots, fazendo o engage sempre falhar
+
+### O que foi corrigido
+- Criada funcao `_resolve_redirect_url()` que decodifica URLs de redirect do DuckDuckGo, Google e Bing para o URL real do Instagram
+- `_extract_instagram_data()` agora chama o resolver antes de tentar extrair dados
+- Reorganizada ordem de busca: DuckDuckGo primeiro (unica fonte que funciona de forma confiavel), depois query alternativa no DDG, depois Bing, Google e por ultimo Instagram direto
+- Removido o sistema de placeholders `_explore_*` que nunca funcionava
+- Scraping de perfil de concorrente agora usa DuckDuckGo como fallback (ao inves de Bing que retorna 403)
+- Criada funcao `_extract_username_from_title()` mais robusta para extrair usernames de titulos de resultados
+
+### Testes realizados
+- blackworktattoo: 8 perfis reais encontrados
+- tattooart: 1 perfil encontrado
+- tattoobrasil: 7 perfis encontrados
+- blackworkers: 7 perfis encontrados
+- tatuagem: 8 perfis encontrados
+- Total: 11 perfis unicos apos filtragem (bots removidos, duplicatas removidas)
+- Scraping de perfil (@florio.tattoo): bio, seguidores e contagem de posts extraidos com sucesso via DuckDuckGo
