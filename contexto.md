@@ -99,3 +99,22 @@
 - tatuagem: 8 perfis encontrados
 - Total: 11 perfis unicos apos filtragem (bots removidos, duplicatas removidas)
 - Scraping de perfil (@florio.tattoo): bio, seguidores e contagem de posts extraidos com sucesso via DuckDuckGo
+
+---
+
+## 06/04/2026 - Correcao do Spy de Concorrentes
+
+### Problema
+- O comando spy report mostrava "Nao e possivel analisar" porque o Ollama recebia todos os dados como N/A
+- O scraper coletava a bio do perfil via DuckDuckGo, mas o modulo spy nao passava os dados corretamente ao prompt
+- Nao havia busca de informacoes extras sobre o perfil
+
+### O que foi corrigido
+- Reescrito o modulo competitor_spy.py
+- Adicionada funcao `_collect_web_info()` que busca informacoes extras sobre o perfil no DuckDuckGo (snippets com posts recentes, engagement rate, etc)
+- Filtro inteligente: so coleta snippets que mencionam o username do perfil buscado (evita dados de outros perfis)
+- Prompt do Ollama reescrito para ser mais pratico: instrui a IA a usar os dados disponiveis e nunca dizer que nao pode analisar
+- Stats exibidos no card agora mostram bio, seguidores e quantidade de infos web encontradas
+
+### Teste realizado
+- Spy de @florio.tattoo: coletou bio ("BlackWork & Preto e Vermelho"), 292 seguidores, 23 posts, um post recente com legenda real ("Se voce ta vendo esse video..."), e info sobre reels
