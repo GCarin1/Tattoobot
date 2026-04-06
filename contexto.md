@@ -130,3 +130,25 @@
 ### O que foi corrigido
 - `config.py`: `OLLAMA_TIMEOUT` aumentado de `60` para `180` segundos
 - O limite maior evita timeouts ao gerar conteudos mais elaborados (7 ideias com formato, titulo, descricao, dica e hashtag cada)
+
+---
+
+## 06/04/2026 - Comparador de Perfis (nova funcionalidade)
+
+### O que foi feito
+- Criado novo modulo `modules/profile_comparator.py` - Comparador de perfis completo
+- Nova opcao no menu interativo: opcao 5 "Comparador de Perfis"
+- Opcoes anteriores 5 e 6 renumeradas para 6 e 7
+- Novo comando CLI direto: `python main.py compare`
+
+### Como funciona
+- O usuario informa seu username e o username do rival/concorrente
+- O bot coleta dados publicos dos dois perfis (scraping + busca web)
+- Exibe um resumo dos dados coletados de cada perfil
+- Envia tudo para o Ollama que gera uma analise comparativa estruturada:
+  1. Comparativo geral entre os perfis
+  2. O que o rival faz melhor (pontos especificos)
+  3. O que voce faz melhor
+  4. Plano de acao concreto para superar o rival em cada aspecto
+  5. Prioridade numero 1 para melhorar imediatamente
+- Reutiliza funcoes existentes do scraper e competitor_spy (sem duplicar codigo)
