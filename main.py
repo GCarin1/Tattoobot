@@ -77,6 +77,13 @@ def _run_ideas_interactive() -> None:
     _run_async(run_ideas(settings, ""))
 
 
+def _run_compare() -> None:
+    """Executa modulo de comparacao de perfis."""
+    settings = storage.load_settings()
+    from modules.profile_comparator import run_profile_comparison
+    _run_async(run_profile_comparison(settings))
+
+
 def _run_spy_menu() -> None:
     """Submenu de spy."""
     from modules import competitor_spy
@@ -252,6 +259,7 @@ def run_interactive_menu() -> None:
         "caption": _run_caption,
         "ideas": _run_ideas_interactive,
         "spy": _run_spy_menu,
+        "compare": _run_compare,
         "growth": _run_growth_menu,
         "config": _run_config_menu,
     }
@@ -297,6 +305,13 @@ def caption() -> None:
     """Gera legendas otimizadas com SEO, hashtags e CTA."""
     display.show_banner()
     _run_caption()
+
+
+@app.command()
+def compare() -> None:
+    """Compara seu perfil com um rival e gera plano de acao para supera-lo."""
+    display.show_banner()
+    _run_compare()
 
 
 @app.command()
