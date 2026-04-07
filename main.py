@@ -84,6 +84,13 @@ def _run_compare() -> None:
     _run_async(run_profile_comparison(settings))
 
 
+def _run_evaluate() -> None:
+    """Executa modulo de avaliacao de tatuagem."""
+    settings = storage.load_settings()
+    from modules.tattoo_evaluator import run_tattoo_evaluation
+    _run_async(run_tattoo_evaluation(settings))
+
+
 def _run_spy_menu() -> None:
     """Submenu de spy."""
     from modules import competitor_spy
@@ -261,6 +268,7 @@ def run_interactive_menu() -> None:
         "spy": _run_spy_menu,
         "compare": _run_compare,
         "growth": _run_growth_menu,
+        "evaluate": _run_evaluate,
         "config": _run_config_menu,
     }
 
@@ -312,6 +320,13 @@ def compare() -> None:
     """Compara seu perfil com um rival e gera plano de acao para supera-lo."""
     display.show_banner()
     _run_compare()
+
+
+@app.command()
+def evaluate() -> None:
+    """Avalia uma imagem de tatuagem com IA e marca pontos de melhoria."""
+    display.show_banner()
+    _run_evaluate()
 
 
 @app.command()
