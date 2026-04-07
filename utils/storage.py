@@ -73,7 +73,7 @@ def load_settings() -> dict[str, Any]:
         "artist_name": "",
         "artist_city": "",
         "scraping_delay_seconds": 3,
-        "ollama_vision_model": "llava",
+        "ollama_vision_model": "",
     }
     settings = read_json(SETTINGS_FILE, defaults)
     # Garante que todas as chaves padrao existam
