@@ -93,13 +93,36 @@ async def generate_with_image(
 ) -> str | None:
     """Envia prompt com imagem ao Ollama (modelos de visao) e retorna a resposta.
 
+    Tenta primeiro /api/chat (compativel com modelos mais novos como gemma3,
+    llama3.2-vision) e faz fallback para /api/generate se necessario.
     Retorna None se houver erro.
     """
     if not await check_ollama(ollama_url):
         show_ollama_install_help()
         return None
 
-    payload: dict = {
+    # Payload para /api/chat (formato preferido para modelos de visao)
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({
+        "role": "user",
+        "content": prompt,
+        "images": [image_base64],
+    })
+
+    chat_payload: dict = {
+        "model": model,
+        "messages": messages,
+        "stream": False,
+        "options": {
+            "temperature": 0.7,
+            "top_p": 0.9,
+        },
+    }
+
+    # Payload para /api/generate (fallback)
+    generate_payload: dict = {
         "model": model,
         "prompt": prompt,
         "images": [image_base64],
@@ -110,15 +133,29 @@ async def generate_with_image(
         },
     }
     if system_prompt:
-        payload["system"] = system_prompt
+        generate_payload["system"] = system_prompt
 
     try:
         async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
+            # Tenta /api/chat primeiro (modelos mais novos)
             with get_spinner() as progress:
                 progress.add_task(description="Analisando imagem com IA...", total=None)
                 response = await client.post(
+                    f"{ollama_url}/api/chat",
+                    json=chat_payload,
+                )
+
+            if response.status_code == 200:
+                data = response.json()
+                message = data.get("message", {})
+                return message.get("content", "").strip()
+
+            # Fallback para /api/generate se /api/chat falhou
+            with get_spinner() as progress:
+                progress.add_task(description="Tentando via endpoint alternativo...", total=None)
+                response = await client.post(
                     f"{ollama_url}/api/generate",
-                    json=payload,
+                    json=generate_payload,
                 )
 
             if response.status_code == 200:
@@ -126,6 +163,11 @@ async def generate_with_image(
                 return data.get("response", "").strip()
             else:
                 show_error(f"Ollama retornou status {response.status_code}")
+                show_warning(
+                    f"Verifique se o modelo '{model}' esta instalado.\n"
+                    f"  Execute: [cyan]ollama list[/cyan] para ver modelos disponiveis.\n"
+                    f"  Execute: [cyan]ollama pull {model}[/cyan] para baixar o modelo."
+                )
                 return None
 
     except httpx.TimeoutException:

@@ -349,8 +349,9 @@ async def run_tattoo_evaluation(settings: dict) -> None:
 
     show_info(f"Imagem carregada: {image_path.name} ({file_size_mb:.1f}MB)")
 
-    # Modelo de visao
-    vision_model = settings.get("ollama_vision_model", "llava")
+    # Modelo de visao (usa ollama_vision_model se configurado, senao usa o ollama_model principal)
+    default_model = settings.get("ollama_model", "llava")
+    vision_model = settings.get("ollama_vision_model") or default_model
     ollama_url = settings.get("ollama_url", "http://localhost:11434")
 
     console.print(f"[dim]Usando modelo de visao: {vision_model}[/dim]")
