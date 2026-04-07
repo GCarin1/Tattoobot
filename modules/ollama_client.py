@@ -84,6 +84,64 @@ async def generate(
         return None
 
 
+async def generate_with_image(
+    prompt: str,
+    image_base64: str,
+    ollama_url: str,
+    model: str,
+    system_prompt: str = "",
+) -> str | None:
+    """Envia prompt com imagem ao Ollama (modelos de visao) e retorna a resposta.
+
+    Retorna None se houver erro.
+    """
+    if not await check_ollama(ollama_url):
+        show_ollama_install_help()
+        return None
+
+    payload: dict = {
+        "model": model,
+        "prompt": prompt,
+        "images": [image_base64],
+        "stream": False,
+        "options": {
+            "temperature": 0.7,
+            "top_p": 0.9,
+        },
+    }
+    if system_prompt:
+        payload["system"] = system_prompt
+
+    try:
+        async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
+            with get_spinner() as progress:
+                progress.add_task(description="Analisando imagem com IA...", total=None)
+                response = await client.post(
+                    f"{ollama_url}/api/generate",
+                    json=payload,
+                )
+
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("response", "").strip()
+            else:
+                show_error(f"Ollama retornou status {response.status_code}")
+                return None
+
+    except httpx.TimeoutException:
+        show_error(
+            f"Timeout ao analisar imagem (limite: {OLLAMA_TIMEOUT}s). "
+            "Modelos de visao podem ser mais lentos. Tente um modelo menor."
+        )
+        return None
+    except httpx.ConnectError:
+        show_ollama_install_help()
+        return None
+    except Exception as e:
+        show_error(f"Erro inesperado com Ollama: {e}")
+        return None
+
+
 async def list_models(ollama_url: str) -> list[str]:
     """Lista modelos disponiveis no Ollama."""
     try:

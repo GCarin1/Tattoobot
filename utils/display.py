@@ -27,7 +27,8 @@ MENU_OPTIONS = [
     ("4", "Spy de Concorrentes", "Monitorar perfis de referencia", "spy"),
     ("5", "Comparador de Perfis", "Seu perfil vs rival + plano de acao", "compare"),
     ("6", "Growth Tracker", "Registrar e ver metricas", "growth"),
-    ("7", "Configuracoes", "Gerenciar settings do bot", "config"),
+    ("7", "Avaliar Tatuagem", "IA analisa sua tattoo e marca erros", "evaluate"),
+    ("8", "Configuracoes", "Gerenciar settings do bot", "config"),
     ("0", "Sair", "Encerrar o TattooBot", "exit"),
 ]
 
