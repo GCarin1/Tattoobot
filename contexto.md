@@ -152,3 +152,41 @@
   4. Plano de acao concreto para superar o rival em cada aspecto
   5. Prioridade numero 1 para melhorar imediatamente
 - Reutiliza funcoes existentes do scraper e competitor_spy (sem duplicar codigo)
+
+---
+
+## 07/04/2026 - Avaliacao de Tatuagem com IA de Visao (nova funcionalidade)
+
+### O que foi feito
+- Criado novo modulo `modules/tattoo_evaluator.py` - Avaliacao tecnica de tatuagens com modelo de visao
+- Nova opcao no menu interativo: opcao 7 "Avaliar Tatuagem"
+- Opcoes anteriores 7 (Configuracoes) renumerada para 8
+- Novo comando CLI direto: `python main.py evaluate`
+- Adicionada funcao `generate_with_image()` no `modules/ollama_client.py` para enviar imagens ao Ollama
+- Adicionada dependencia `Pillow>=10.0.0` no `requirements.txt` para anotacao de imagens
+- Novo setting `ollama_vision_model` no `utils/storage.py` (fallback para `ollama_model` se vazio)
+
+### Como funciona
+1. O usuario insere o caminho de uma imagem de tatuagem (pode arrastar pro terminal)
+2. A imagem e convertida para base64 e enviada para um modelo de visao do Ollama (ex: llava, gemma3, llama3.2-vision)
+3. O agente especialista avalia aspectos tecnicos: linhas, sombreamento, proporcoes, saturacao de tinta, contornos e cicatrizacao
+4. A IA retorna um JSON estruturado com nota geral (1-10), pontos positivos, lista de problemas com localizacao em grade 3x3, e dicas gerais
+5. O Pillow marca os pontos de erro na imagem com circulos numerados e coloridos + labels
+6. A imagem anotada e salva em `data/avaliacoes/`
+7. No terminal sao exibidos: nota, resumo, pontos positivos, cada problema com descricao e como corrigir, e dicas gerais
+
+### Detalhes tecnicos
+- A API `/api/chat` e usada como endpoint primario (compativel com modelos novos) com fallback para `/api/generate`
+- A grade 3x3 divide a imagem em 9 regioes para localizacao dos problemas
+- Parser de JSON robusto: tenta parse direto, bloco markdown, e regex como fallback
+- Se o modelo nao retornar JSON valido, exibe a resposta completa em markdown
+- Marcadores visuais com cores diferentes por problema, fonte proporcional ao tamanho da imagem, e fundo escuro para legibilidade
+- Formatos suportados: JPG, JPEG, PNG, WEBP, BMP, GIF (max 20MB)
+
+---
+
+## 07/04/2026 - Script de inicializacao rapida
+
+### O que foi feito
+- Criado `start.bat` para Windows - duplo clique inicia Ollama e TattooBot automaticamente
+- O script inicia `ollama serve` em background, aguarda 3 segundos para subir, e executa `python main.py`
