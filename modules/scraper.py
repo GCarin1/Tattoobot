@@ -499,6 +499,71 @@ def _parse_number(text: str) -> int:
         return 0
 
 
+async def fetch_latest_post_for_profile(
+    username: str,
+    delay: float = 3.0,
+) -> ScrapedPost | None:
+    """Tenta obter o post mais recente de um perfil com contexto real (alt_text).
+
+    Retorna None se nao conseguir. Faz 1 requisicao adicional por perfil.
+    """
+    async with httpx.AsyncClient(timeout=15) as client:
+        # Tenta Instagram direto
+        response = await _safe_request(
+            client,
+            f"https://www.instagram.com/{username}/",
+            delay,
+        )
+        if response and response.status_code == 200:
+            soup = BeautifulSoup(response.text, "html.parser")
+            for link_tag in soup.find_all("a", href=True):
+                href = link_tag.get("href", "")
+                if "/p/" in href:
+                    shortcode = href.split("/p/")[1].strip("/").split("/")[0]
+                    post = ScrapedPost(
+                        shortcode=shortcode,
+                        link=f"https://www.instagram.com/p/{shortcode}/",
+                        username=username,
+                    )
+                    img = link_tag.find("img")
+                    if img:
+                        post.alt_text = img.get("alt", "") or ""
+                    return post
+
+            # Tenta extrair de meta og:description como contexto generico
+            meta_desc = soup.find("meta", attrs={"property": "og:description"})
+            if meta_desc:
+                content = meta_desc.get("content", "")
+                if content:
+                    return ScrapedPost(
+                        shortcode="",
+                        link=f"https://www.instagram.com/{username}/",
+                        username=username,
+                        alt_text=content[:300],
+                    )
+
+        # Fallback DuckDuckGo: busca posts especificos do perfil
+        query = quote_plus(f"site:instagram.com/p @{username}")
+        search_url = f"https://html.duckduckgo.com/html/?q={query}"
+        response = await _safe_request(client, search_url, delay)
+        if response and response.status_code == 200:
+            soup = BeautifulSoup(response.text, "html.parser")
+            for result in soup.find_all("a", class_="result__a"):
+                href = result.get("href", "")
+                title = result.get_text(strip=True)
+                post = _extract_instagram_data(href, title)
+                if post and post.shortcode:
+                    post.username = username
+                    return post
+
+    return None
+
+
+def has_real_post_link(post: "ScrapedPost") -> bool:
+    """Indica se o ScrapedPost tem link de post real (/p/ ou /reel/)."""
+    return bool(post.shortcode) and ("/p/" in post.link or "/reel/" in post.link)
+
+
 def is_likely_bot(username: str) -> bool:
     """Verifica se um username parece ser bot."""
     bot_patterns = [

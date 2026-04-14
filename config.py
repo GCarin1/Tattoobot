@@ -12,6 +12,7 @@ SETTINGS_FILE: Path = BASE_DIR / "settings.json"
 HISTORY_FILE: Path = DATA_DIR / "history.json"
 COMPETITORS_FILE: Path = DATA_DIR / "competitors.json"
 GROWTH_FILE: Path = DATA_DIR / "growth.json"
+IDEAS_HISTORY_FILE: Path = DATA_DIR / "ideas_history.json"
 
 # Configuracoes de scraping
 USER_AGENTS: list[str] = [
