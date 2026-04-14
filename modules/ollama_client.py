@@ -33,6 +33,8 @@ async def generate(
     ollama_url: str,
     model: str,
     system_prompt: str = "",
+    temperature: float = 0.8,
+    top_p: float = 0.9,
 ) -> str | None:
     """Envia prompt ao Ollama e retorna a resposta gerada.
 
@@ -47,8 +49,8 @@ async def generate(
         "prompt": prompt,
         "stream": False,
         "options": {
-            "temperature": 0.8,
-            "top_p": 0.9,
+            "temperature": temperature,
+            "top_p": top_p,
         },
     }
     if system_prompt:

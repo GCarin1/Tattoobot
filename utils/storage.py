@@ -145,3 +145,36 @@ def get_history_usernames() -> set[str]:
     """Retorna conjunto de usernames ja sugeridos."""
     history = load_history()
     return {entry.get("username", "") for entry in history}
+
+
+def load_ideas_history() -> list[dict[str, Any]]:
+    """Carrega historico de ideias de conteudo ja geradas."""
+    from config import IDEAS_HISTORY_FILE
+    return read_json(IDEAS_HISTORY_FILE, [])
+
+
+def save_ideas_history(ideas: list[dict[str, Any]]) -> None:
+    """Salva historico de ideias de conteudo."""
+    from config import IDEAS_HISTORY_FILE
+    write_json(IDEAS_HISTORY_FILE, ideas)
+
+
+def add_to_ideas_history(ideas: list[dict[str, Any]], keep_last: int = 80) -> None:
+    """Adiciona ideias ao historico mantendo apenas as ultimas N."""
+    history = load_ideas_history()
+    today = datetime.now().strftime("%d/%m/%Y")
+    for idea in ideas:
+        entry = dict(idea)
+        entry["date"] = today
+        history.append(entry)
+    # Mantem somente as N mais recentes para nao engessar muito a IA
+    if len(history) > keep_last:
+        history = history[-keep_last:]
+    save_ideas_history(history)
+
+
+def get_recent_idea_titles(limit: int = 30) -> list[str]:
+    """Retorna titulos das ultimas ideias geradas (para evitar repeticao)."""
+    history = load_ideas_history()
+    titles = [h.get("title", "").strip() for h in history if h.get("title")]
+    return [t for t in titles[-limit:] if t]
