@@ -31,7 +31,6 @@ class EstoquePage(BasePage):
         from gui.pages.estoque_planilha import build_planilha_tab
         from gui.pages.estoque_preco import build_preco_tab
         from gui.pages.estoque_orcamento import build_orcamento_tab
-        from gui.pages.estoque_analytics import build_analytics_tab
 
         tabs = ctk.CTkTabview(
             parent,
@@ -50,12 +49,10 @@ class EstoquePage(BasePage):
         tabs.add("Planilha")
         tabs.add("Busca de Precos")
         tabs.add("Orcamento")
-        tabs.add("Analytics")
 
         build_planilha_tab(tabs.tab("Planilha"), app=self.app, page_ref=self)
         build_preco_tab(tabs.tab("Busca de Precos"), app=self.app, page_ref=self)
         build_orcamento_tab(tabs.tab("Orcamento"), app=self.app, page_ref=self)
-        build_analytics_tab(tabs.tab("Analytics"), app=self.app, page_ref=self)
 
     def on_show(self) -> None:
         if hasattr(self, "_orcamento_reload"):

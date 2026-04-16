@@ -49,6 +49,9 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
     _btn("Exportar CSV", lambda: _export_csv(), color=theme.BLACK_HOVER).pack(side="left", padx=(0, 6))
     _btn("+ Novo Item", lambda: _add_new_row()).pack(side="left", padx=(0, 6))
 
+    _btn("Salvar Selecionados", lambda: _save_selected(), color=theme.RED_DEEP).pack(side="left", padx=(12, 6))
+    _btn("Excluir Selecionados", lambda: _delete_selected(), color=theme.BLACK_HOVER).pack(side="left", padx=(0, 6))
+
     total_label = ctk.CTkLabel(
         toolbar,
         text="Total: R$ 0,00",
@@ -61,18 +64,41 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
     header_frame = ctk.CTkFrame(parent, fg_color=theme.BLACK_PANEL, corner_radius=6)
     header_frame.pack(fill="x", padx=16, pady=(0, 4))
 
-    _COL_WIDTHS = [160, 100, 70, 80, 90, 80, 36, 36]
-    _COL_LABELS = ["Nome", "Categoria", "Qtd", "Unidade", "Preco Unit.", "Total", "", ""]
+    _COL_WIDTHS = [28, 160, 100, 70, 80, 90, 80, 36, 36]
+    _COL_LABELS = ["", "Nome", "Categoria", "Qtd", "Unidade", "Preco Unit.", "Total", "", ""]
 
-    for col_idx, (label, width) in enumerate(zip(_COL_LABELS, _COL_WIDTHS)):
+    select_all_var = tk.BooleanVar(value=False)
+
+    def _toggle_select_all() -> None:
+        val = select_all_var.get()
+        for row in state["rows"]:
+            row["select_var"].set(val)
+
+    select_all_cb = ctk.CTkCheckBox(
+        header_frame,
+        text="",
+        variable=select_all_var,
+        width=28,
+        height=24,
+        checkbox_width=18,
+        checkbox_height=18,
+        corner_radius=4,
+        fg_color=theme.RED_DEEP,
+        hover_color=theme.RED_PRIMARY,
+        checkmark_color=theme.TEXT_PRIMARY,
+        command=_toggle_select_all,
+    )
+    select_all_cb.pack(side="left", padx=(8, 4), pady=4)
+
+    for col_idx, (label, width) in enumerate(zip(_COL_LABELS[1:], _COL_WIDTHS[1:]), start=1):
         ctk.CTkLabel(
             header_frame,
             text=label,
             font=theme.FONT_SMALL,
             text_color=theme.TEXT_MUTED,
             width=width,
-            anchor="w" if col_idx < 6 else "center",
-        ).pack(side="left", padx=(8 if col_idx == 0 else 4, 4), pady=4)
+            anchor="w" if col_idx < 7 else "center",
+        ).pack(side="left", padx=4, pady=4)
 
     # ── Tabela scrollavel ──────────────────────────────────────────────────────
     scroll = ctk.CTkScrollableFrame(
@@ -134,6 +160,7 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
                 return str(int(f))
             return f"{f:.2f}".replace(".", ",")
 
+        select_var = tk.BooleanVar(value=False)
         name_var = tk.StringVar(value=str(item.get("name", "") or ""))
         cat_var = tk.StringVar(value=str(item.get("category", "") or ""))
         qty_var = tk.StringVar(value=_fmt_number(item.get("quantity", 0)))
@@ -157,11 +184,24 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
                 kwargs["validate"] = "key"
                 kwargs["validatecommand"] = vcmd_number
             e = ctk.CTkEntry(row_frame, **kwargs)
-            var.trace_add("write", lambda *_: _update_total_label(row_data))
+            var.trace_add("write", lambda *_: _on_row_edited(row_data))
             return e
 
         total_var = tk.StringVar(value="R$ 0,00")
 
+        select_cb = ctk.CTkCheckBox(
+            row_frame,
+            text="",
+            variable=select_var,
+            width=28,
+            height=24,
+            checkbox_width=18,
+            checkbox_height=18,
+            corner_radius=4,
+            fg_color=theme.RED_DEEP,
+            hover_color=theme.RED_PRIMARY,
+            checkmark_color=theme.TEXT_PRIMARY,
+        )
         name_entry = _make_entry(name_var, 160)
         cat_entry = _make_entry(cat_var, 100)
         qty_entry = _make_entry(qty_var, 70, numeric=True)
@@ -200,18 +240,23 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
             font=theme.FONT_SMALL,
         )
 
+        select_cb.pack(side="left", padx=(8, 4), pady=4)
         for widget in [name_entry, cat_entry, qty_entry, unit_entry, price_entry, total_lbl, save_btn, del_btn]:
             widget.pack(side="left", padx=4, pady=4)
 
         row_data: dict[str, Any] = {
             "frame": row_frame,
             "item_id": item.get("id", ""),
+            "select_var": select_var,
             "name_var": name_var,
             "cat_var": cat_var,
             "qty_var": qty_var,
             "unit_var": unit_var,
             "price_var": price_var,
             "total_var": total_var,
+            "save_btn": save_btn,
+            "del_btn": del_btn,
+            "save_visible": True,
             "supplier": item.get("supplier", ""),
             "notes": item.get("notes", ""),
             "last_updated": item.get("last_updated", ""),
@@ -227,6 +272,10 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
                 pass
             _update_total()
 
+        def _on_row_edited(row: dict[str, Any]) -> None:
+            _update_total_label(row)
+            _show_save_btn(row)
+
         # Bind save/delete with closures
         def _save_row(row: dict[str, Any]) -> None:
             items_all = _collect_items_from_rows()
@@ -239,19 +288,73 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
             storage.save_estoque_history(history)
             page_ref._price_results = []
             _update_total()
+            _hide_save_btn(row)
 
         def _delete_row(row: dict[str, Any]) -> None:
             if not messagebox.askyesno("Confirmar", f"Deletar '{row['name_var'].get()}'?"):
                 return
             row["frame"].destroy()
             state["rows"] = [r for r in state["rows"] if r is not row]
-            _save_row(None)  # type: ignore[arg-type]
+            _persist_rows()
 
         save_btn.configure(command=lambda r=row_data: _save_row(r))
         del_btn.configure(command=lambda r=row_data: _delete_row(r))
 
         _update_total_label(row_data)
         state["rows"].append(row_data)
+
+    def _hide_save_btn(row: dict[str, Any]) -> None:
+        if row.get("save_visible", True):
+            try:
+                row["save_btn"].pack_forget()
+            except tk.TclError:
+                pass
+            row["save_visible"] = False
+
+    def _show_save_btn(row: dict[str, Any]) -> None:
+        if not row.get("save_visible", True):
+            try:
+                row["save_btn"].pack(side="left", padx=4, pady=4, before=row["del_btn"])
+            except tk.TclError:
+                pass
+            row["save_visible"] = True
+
+    def _persist_rows() -> None:
+        items_all = _collect_items_from_rows()
+        data = storage.load_estoque()
+        data["items"] = items_all
+        data["updated_at"] = __import__("datetime").datetime.now().isoformat(timespec="seconds")
+        storage.save_estoque(data)
+        history = storage.load_estoque_history()
+        history = stock_manager.upsert_monthly_snapshot(history, items_all)
+        storage.save_estoque_history(history)
+        page_ref._price_results = []
+        _update_total()
+
+    def _save_selected() -> None:
+        selected = [r for r in state["rows"] if r["select_var"].get()]
+        if not selected:
+            return
+        _persist_rows()
+        for row in selected:
+            _hide_save_btn(row)
+            row["select_var"].set(False)
+        select_all_var.set(False)
+
+    def _delete_selected() -> None:
+        selected = [r for r in state["rows"] if r["select_var"].get()]
+        if not selected:
+            return
+        if not messagebox.askyesno(
+            "Confirmar",
+            f"Deletar {len(selected)} item(ns) selecionado(s)?",
+        ):
+            return
+        for row in selected:
+            row["frame"].destroy()
+        state["rows"] = [r for r in state["rows"] if not r["select_var"].get()]
+        select_all_var.set(False)
+        _persist_rows()
 
     def _add_new_row() -> None:
         item = stock_manager.new_item("Novo Item", 1, 0.0)
