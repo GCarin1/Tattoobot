@@ -20,6 +20,10 @@ DM_TEMPLATES_FILE: Path = DATA_DIR / "dm_templates.json"
 BIO_HISTORY_FILE: Path = DATA_DIR / "bio_history.json"
 PORTFOLIO_FILE: Path = DATA_DIR / "portfolio.json"
 
+# v3.0 — Estoque
+ESTOQUE_FILE: Path = DATA_DIR / "estoque.json"
+ESTOQUE_HISTORY_FILE: Path = DATA_DIR / "estoque_history.json"
+
 # Configuracoes de scraping
 USER_AGENTS: list[str] = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
