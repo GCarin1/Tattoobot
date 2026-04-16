@@ -79,7 +79,7 @@ class CalendarPage(BasePage):
 
     def _start(self) -> None:
         self._clear_results()
-        self.run_btn.configure(state="disabled", text="Gerando...")
+        self._set_btn_loading(self.run_btn, "Gerando...")
         self.status_label.configure(
             text="IA montando calendario... ~30-60s.",
             text_color=theme.TEXT_INFO,
@@ -96,7 +96,7 @@ class CalendarPage(BasePage):
             coro_factory=lambda: self._calendar_flow(settings, period, posts_per_week),
             on_result=self._on_done,
             on_error=self._on_error,
-            on_done=lambda: self.run_btn.configure(state="normal", text="▶  Gerar Calendario"),
+            on_done=lambda: self._set_btn_ready(self.run_btn, "▶  Gerar Calendario"),
         )
 
     async def _calendar_flow(self, settings, period, posts_per_week):

@@ -96,7 +96,7 @@ class PortfolioPage(BasePage):
             return
 
         self._clear_results()
-        self.run_btn.configure(state="disabled", text="Analisando...")
+        self._set_btn_loading(self.run_btn, "Analisando...")
         self.status_label.configure(
             text="Analisando fotos com IA de visao... pode demorar.",
             text_color=theme.TEXT_INFO,
@@ -108,7 +108,7 @@ class PortfolioPage(BasePage):
             coro_factory=lambda: self._portfolio_flow(settings, images_dir),
             on_result=self._on_done,
             on_error=self._on_error,
-            on_done=lambda: self.run_btn.configure(state="normal", text="▶  Analisar Portfolio"),
+            on_done=lambda: self._set_btn_ready(self.run_btn, "▶  Analisar Portfolio"),
         )
 
     async def _portfolio_flow(self, settings, images_dir):

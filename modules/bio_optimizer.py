@@ -162,11 +162,11 @@ async def run_bio_optimizer(settings: dict) -> None:
             f"[dim]Voce tem {len(competitors)} concorrente(s) monitorado(s). "
             "Usando como referencia de nicho...[/dim]"
         )
-        from modules.scraper import get_profile_data
+        from modules.scraper import scrape_profile_page
         for username in competitors[:3]:
             try:
-                data = await get_profile_data(username, settings.get("ollama_url", ""))
-                bio = data.get("bio", "")
+                profile = await scrape_profile_page(username, delay=2.0)
+                bio = profile.bio or ""
                 if bio and bio not in competitor_bios:
                     competitor_bios.append(bio[:200])
             except Exception:

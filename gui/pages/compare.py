@@ -131,7 +131,7 @@ class ComparePage(BasePage):
             return
 
         self._clear_results()
-        self.run_btn.configure(state="disabled", text="Analisando...")
+        self._set_btn_loading(self.run_btn, "Analisando...")
         self.status_label.configure(
             text="Coletando dados dos dois perfis... ~1 minuto.",
             text_color=theme.TEXT_INFO,
@@ -142,7 +142,7 @@ class ComparePage(BasePage):
             coro_factory=lambda: self._compare_flow(settings, me, rival),
             on_result=self._on_done,
             on_error=self._on_error,
-            on_done=lambda: self.run_btn.configure(state="normal", text="▶  Comparar"),
+            on_done=lambda: self._set_btn_ready(self.run_btn, "▶  Comparar"),
         )
 
     async def _compare_flow(self, settings, me, rival):
