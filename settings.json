@@ -1,4 +1,8 @@
 {
+  "artist_name": "florio.tattoo",
+  "artist_city": "Sao Paulo",
+  "tattoo_style": "blackwork",
+  "tattoo_style_secondary": "",
   "hashtags": [
     "blackworktattoo",
     "tattooart",
@@ -7,12 +11,17 @@
     "tatuagem"
   ],
   "profiles_per_day": 10,
-  "ollama_model": "gemma4:31b-cloud",
   "ollama_url": "http://localhost:11434",
+  "ollama_model": "gemma4:31b-cloud",
+  "ollama_vision_model": "",
+  "ai_provider": "ollama",
+  "openai_api_key": "",
+  "openai_model": "gpt-4o-mini",
+  "anthropic_api_key": "",
+  "anthropic_model": "claude-haiku-4-5-20251001",
+  "video_api_provider": "",
+  "video_api_key": "",
   "language": "pt-br",
-  "competitor_profiles": [],
-  "tattoo_style": "blackwork",
-  "artist_name": "florio.tattoo",
-  "artist_city": "Sao Paulo",
-  "scraping_delay_seconds": 3
+  "scraping_delay_seconds": 3,
+  "competitor_profiles": []
 }

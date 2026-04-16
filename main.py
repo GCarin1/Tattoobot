@@ -91,6 +91,60 @@ def _run_evaluate() -> None:
     _run_async(run_tattoo_evaluation(settings))
 
 
+def _run_reels_menu() -> None:
+    """Submenu do Assistente de Reels."""
+    display.console.print()
+    display.show_panel("Assistente de Reels", "Escolha o modo:", style="red")
+
+    display.console.print("  [yellow]1[/yellow]  Criar Reel (so roteiro/script)")
+    display.console.print("  [yellow]2[/yellow]  Criar Reel + video basico (moviepy)")
+    display.console.print("  [yellow]3[/yellow]  Criar Reel + IA generativa de video (Runway/Pika)")
+    display.console.print("  [yellow]4[/yellow]  Ver historico de roteiros")
+    display.console.print("  [yellow]0[/yellow]  Voltar")
+    display.console.print()
+
+    choice = display.console.input("[bold cyan]Escolha > [/bold cyan]").strip()
+    settings = storage.load_settings()
+    from modules.reels_assistant import run_reels, run_reels_history
+
+    if choice == "1":
+        _run_async(run_reels(settings, mode="script"))
+    elif choice == "2":
+        _run_async(run_reels(settings, mode="video"))
+    elif choice == "3":
+        _run_async(run_reels(settings, mode="ai"))
+    elif choice == "4":
+        _run_async(run_reels_history(settings))
+
+
+def _run_calendar() -> None:
+    """Executa modulo de calendario de conteudo."""
+    settings = storage.load_settings()
+    from modules.content_calendar import run_content_calendar
+    _run_async(run_content_calendar(settings))
+
+
+def _run_dm_templates() -> None:
+    """Executa modulo de templates de atendimento."""
+    settings = storage.load_settings()
+    from modules.dm_templates import run_dm_templates
+    _run_async(run_dm_templates(settings))
+
+
+def _run_bio_optimizer() -> None:
+    """Executa modulo de otimizacao de bio."""
+    settings = storage.load_settings()
+    from modules.bio_optimizer import run_bio_optimizer
+    _run_async(run_bio_optimizer(settings))
+
+
+def _run_portfolio() -> None:
+    """Executa modulo de curadoria de portfolio."""
+    settings = storage.load_settings()
+    from modules.portfolio_curator import run_portfolio_curator
+    _run_async(run_portfolio_curator(settings))
+
+
 def _run_spy_menu() -> None:
     """Submenu de spy."""
     from modules import competitor_spy
@@ -269,6 +323,11 @@ def run_interactive_menu() -> None:
         "compare": _run_compare,
         "growth": _run_growth_menu,
         "evaluate": _run_evaluate,
+        "reels": _run_reels_menu,
+        "calendar": _run_calendar,
+        "dm": _run_dm_templates,
+        "bio": _run_bio_optimizer,
+        "portfolio": _run_portfolio,
         "config": _run_config_menu,
     }
 
@@ -327,6 +386,48 @@ def evaluate() -> None:
     """Avalia uma imagem de tatuagem com IA e marca pontos de melhoria."""
     display.show_banner()
     _run_evaluate()
+
+
+@app.command()
+def reels(
+    mode: Optional[str] = typer.Argument(
+        None,
+        help="Modo: 'script' (padrao), 'video' (moviepy), 'ai' (IA generativa)",
+    ),
+) -> None:
+    """Cria roteiro completo de Reel (script, texto, hashtags e opcao de video)."""
+    display.show_banner()
+    settings = storage.load_settings()
+    from modules.reels_assistant import run_reels
+    _run_async(run_reels(settings, mode=mode or "script"))
+
+
+@app.command()
+def calendar() -> None:
+    """Gera calendario de conteudo semanal ou mensal."""
+    display.show_banner()
+    _run_calendar()
+
+
+@app.command()
+def dm() -> None:
+    """Gerencia templates de atendimento para DM e WhatsApp."""
+    display.show_banner()
+    _run_dm_templates()
+
+
+@app.command()
+def bio() -> None:
+    """Analisa e otimiza sua bio do Instagram."""
+    display.show_banner()
+    _run_bio_optimizer()
+
+
+@app.command()
+def portfolio() -> None:
+    """Curadoria de portfolio: analisa fotos e sugere o que e quando postar."""
+    display.show_banner()
+    _run_portfolio()
 
 
 @app.command()
