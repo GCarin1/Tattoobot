@@ -1,10 +1,12 @@
-# TattooBot Copilot
+# TattooBot Copilot v2.0
 
 Assistente para tatuadores que querem crescer no Instagram de forma **100% segura** — sem nenhuma automacao na conta do Instagram. Funciona como **app de desktop** (Windows) e tambem como **CLI** para quem prefere terminal.
 
-O bot analisa dados publicos, sugere perfis para engajar manualmente, gera comentarios personalizados via IA (Ollama local ou cloud) e oferece ferramentas de marketing digital integradas.
+O bot analisa dados publicos, sugere perfis para engajar manualmente, gera comentarios personalizados via IA e oferece ferramentas completas de marketing digital — incluindo roteiros para Reels, calendarios de conteudo e templates de atendimento.
 
 > **Principio fundamental:** O bot NUNCA executa acoes na sua conta do Instagram. Ele pensa, analisa e sugere. Voce executa manualmente no celular. Risco zero de ban.
+
+**v2.0 — Novidades:** Assistente de Reels, Calendario de Conteudo, Templates de Atendimento, Bio Optimizer, Curador de Portfolio, suporte a OpenAI/Anthropic como providers opcionais e geracao de video com Runway ML / Pika Labs.
 
 ## Duas formas de uso
 
@@ -64,6 +66,8 @@ python main.py config setup
 
 Todas funcionam tanto na GUI quanto na CLI:
 
+### v1.0 — Base
+
 | Modulo | O que faz |
 |---|---|
 | **Engajamento Diario** | Busca perfis em hashtags + gera 3 comentarios IA por perfil |
@@ -73,7 +77,17 @@ Todas funcionam tanto na GUI quanto na CLI:
 | **Comparador de Perfis** | Seu perfil vs rival + plano de acao concreto |
 | **Growth Tracker** | Registra metricas semanais + analise IA de tendencia |
 | **Avaliar Tatuagem** | IA de visao analisa foto, marca pontos de melhoria na grade |
-| **Configuracoes** | Gerencia perfil, hashtags e integracao Ollama |
+
+### v2.0 — Novo
+
+| Modulo | O que faz |
+|---|---|
+| **Assistente de Reels** | Roteiro completo: hook, cenas, text overlays, trilha, hashtags. Opcional: slideshow (moviepy) ou video IA (Runway/Pika) |
+| **Calendario de Conteudo** | Plano semanal/mensal com tipo, objetivo e dica por post. Exporta CSV |
+| **Templates de Atendimento** | Mensagens prontas DM/WhatsApp (orcamento, agendamento, pos-cuidados) + gerador customizado |
+| **Bio Optimizer** | Analisa bio atual e gera 3 versoes otimizadas com SEO e CTA |
+| **Curador de Portfolio** | IA de visao seleciona quais fotos postar, em que ordem e quando. Identifica gaps |
+| **Configuracoes** | Gerencia perfil, hashtags, Ollama e providers opcionais (OpenAI, Anthropic, Runway, Pika) |
 
 ## Usando Ollama Cloud
 
@@ -91,6 +105,7 @@ Depois coloque o nome exato do modelo (ex: `gpt-oss:20b-cloud`) no campo **Model
 ```bash
 python main.py                          # menu interativo
 
+# v1.0
 python main.py engage                   # engajamento diario
 python main.py caption                  # gerar legenda
 python main.py ideas [tema]             # ideias de conteudo
@@ -106,9 +121,20 @@ python main.py growth log               # registrar metricas
 python main.py growth show              # ver evolucao
 python main.py growth export
 
+# v2.0
+python main.py reels                    # assistente de reels (so roteiro)
+python main.py reels video              # reels + slideshow moviepy
+python main.py reels ai                 # reels + IA generativa (Runway/Pika)
+python main.py calendar                 # calendario de conteudo
+python main.py dm                       # templates de atendimento
+python main.py bio                      # otimizador de bio
+python main.py portfolio                # curador de portfolio
+
 python main.py config show
 python main.py config setup             # wizard
 python main.py config set hashtags "blackwork,tattoo,dotwork"
+python main.py config set ai_provider openai
+python main.py config set openai_api_key sk-...
 ```
 
 ## Build do executavel Windows (.exe)

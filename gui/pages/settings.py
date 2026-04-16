@@ -13,24 +13,37 @@ from utils import storage
 
 FIELD_SPECS = [
     # (key, label, widget_type, help_text)
-    ("artist_name", "Nome artistico", "entry", "Como voce assina o trabalho"),
-    ("artist_city", "Cidade", "entry", "Para SEO em legendas"),
-    ("tattoo_style", "Estilo principal", "entry", "Ex: blackwork, dotwork, realismo"),
-    ("hashtags", "Hashtags (vírgula)", "list_entry", "Ex: blackwork, tattoo, tatuagembr"),
-    ("profiles_per_day", "Perfis por dia", "int_entry", "Quantos perfis buscar por sessao"),
-    ("scraping_delay_seconds", "Delay entre requisicoes (s)", "int_entry", "Recomendado 3-5s"),
-    ("ollama_url", "URL do Ollama", "entry", "Padrao: http://localhost:11434"),
-    ("ollama_model", "Modelo Ollama (texto)", "entry", "Ex: llama3, mistral, gemma2:27b-cloud"),
-    ("ollama_vision_model", "Modelo Ollama (visao)", "entry", "Para Avaliar Tattoo. Ex: llava, gemma3"),
-    ("language", "Idioma", "entry", "Padrao: pt-br"),
+    # Perfil
+    ("artist_name",          "Nome artistico",               "entry",       "Como voce assina o trabalho"),
+    ("artist_city",          "Cidade",                       "entry",       "Para SEO em legendas"),
+    ("tattoo_style",         "Estilo principal",             "entry",       "Ex: blackwork, dotwork, realismo"),
+    ("tattoo_style_secondary","Estilo secundario (opcional)", "entry",       "Ex: aquarela, old school"),
+    ("hashtags",             "Hashtags (virgula)",           "list_entry",  "Ex: blackwork, tattoo, tatuagembr"),
+    ("profiles_per_day",     "Perfis por dia",               "int_entry",   "Quantos perfis buscar por sessao"),
+    ("scraping_delay_seconds","Delay entre requisicoes (s)", "int_entry",   "Recomendado 3-5s"),
+    # Ollama
+    ("ollama_url",           "URL do Ollama",                "entry",       "Padrao: http://localhost:11434"),
+    ("ollama_model",         "Modelo Ollama (texto)",        "entry",       "Ex: llama3, gemma2:27b-cloud"),
+    ("ollama_vision_model",  "Modelo Ollama (visao)",        "entry",       "Para Avaliar Tattoo. Ex: llava, gemma3"),
+    # v2.0: AI Provider
+    ("ai_provider",          "Provider de IA",               "entry",       "ollama | openai | anthropic"),
+    ("openai_api_key",       "OpenAI API Key",               "entry",       "sk-... (deixe vazio para usar Ollama)"),
+    ("openai_model",         "Modelo OpenAI",                "entry",       "Ex: gpt-4o-mini, gpt-4o"),
+    ("anthropic_api_key",    "Anthropic API Key",            "entry",       "sk-ant-... (deixe vazio para usar Ollama)"),
+    ("anthropic_model",      "Modelo Anthropic",             "entry",       "Ex: claude-haiku-4-5-20251001"),
+    # v2.0: Video API
+    ("video_api_provider",   "Provider de Video",            "entry",       "runway | pika (deixe vazio para desativar)"),
+    ("video_api_key",        "API Key de Video",             "entry",       "Chave do Runway ML ou Pika Labs"),
+    # Geral
+    ("language",             "Idioma",                       "entry",       "Padrao: pt-br"),
 ]
 
 
 class SettingsPage(BasePage):
     TITLE = "Configuracoes"
     DESCRIPTION = (
-        "Configure seu perfil e a conexao com o Ollama. "
-        "Voce pode usar modelos locais ou cloud (Ollama suporta os dois)."
+        "Configure seu perfil, integracao de IA (Ollama/OpenAI/Anthropic) e APIs de video. "
+        "Ollama e o padrao gratuito. OpenAI/Anthropic requerem chave de API paga."
     )
     ACCENT = theme.RED_PRIMARY
 
