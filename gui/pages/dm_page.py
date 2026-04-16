@@ -180,7 +180,7 @@ class DmPage(BasePage):
             self.gen_status.configure(text="Descreva o cenario.", text_color=theme.TEXT_WARNING)
             return
 
-        self.gen_btn.configure(state="disabled", text="Gerando...")
+        self._set_btn_loading(self.gen_btn, "Gerando...")
         self.gen_status.configure(text="IA criando template...", text_color=theme.TEXT_INFO)
 
         tone = self.tone_var.get()
@@ -192,7 +192,7 @@ class DmPage(BasePage):
             on_error=lambda e: self.gen_status.configure(
                 text=f"Erro: {e}", text_color=theme.TEXT_DANGER
             ),
-            on_done=lambda: self.gen_btn.configure(state="normal", text="▶  Gerar Template"),
+            on_done=lambda: self._set_btn_ready(self.gen_btn, "▶  Gerar Template"),
         )
 
     async def _gen_flow(self, settings, scenario, tone):

@@ -95,7 +95,7 @@ class EngagementPage(BasePage):
             return
 
         self._clear_results()
-        self.run_btn.configure(state="disabled", text="Buscando...")
+        self._set_btn_loading(self.run_btn, "Buscando...")
         self.progress_bar.set(0)
         self.status_label.configure(
             text="Iniciando scraping das hashtags... isso pode levar ~1-3 minutos.",
@@ -106,9 +106,7 @@ class EngagementPage(BasePage):
             coro_factory=lambda: self._engagement_flow(settings),
             on_result=self._on_done,
             on_error=self._on_error,
-            on_done=lambda: self.run_btn.configure(
-                state="normal", text="▶  Buscar Perfis"
-            ),
+            on_done=lambda: self._set_btn_ready(self.run_btn, "▶  Buscar Perfis"),
         )
 
     async def _engagement_flow(self, settings: dict) -> list[dict]:

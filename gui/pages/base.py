@@ -117,3 +117,23 @@ class BasePage(ctk.CTkFrame):
             on_error=on_error,
             on_done=on_done,
         )
+
+    def _set_btn_loading(self, btn: ctk.CTkButton, text: str = "Gerando...") -> None:
+        """Desativa botao com visual de carregamento (cinza)."""
+        btn.configure(
+            state="disabled",
+            text=text,
+            fg_color=theme.BLACK_BORDER,
+            text_color=theme.TEXT_MUTED,
+            hover_color=theme.BLACK_BORDER,
+        )
+
+    def _set_btn_ready(self, btn: ctk.CTkButton, text: str) -> None:
+        """Restaura botao para estado ativo (vermelho)."""
+        btn.configure(
+            state="normal",
+            text=text,
+            fg_color=theme.RED_PRIMARY,
+            text_color=theme.TEXT_PRIMARY,
+            hover_color=theme.RED_HOVER,
+        )

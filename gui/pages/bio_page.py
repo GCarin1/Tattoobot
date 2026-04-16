@@ -67,7 +67,7 @@ class BioPage(BasePage):
 
     def _start(self) -> None:
         self._clear_results()
-        self.run_btn.configure(state="disabled", text="Otimizando...")
+        self._set_btn_loading(self.run_btn, "Otimizando...")
         self.status_label.configure(
             text="IA analisando e gerando bios otimizadas...",
             text_color=theme.TEXT_INFO,
@@ -80,7 +80,7 @@ class BioPage(BasePage):
             coro_factory=lambda: self._bio_flow(settings, current_bio),
             on_result=self._on_done,
             on_error=self._on_error,
-            on_done=lambda: self.run_btn.configure(state="normal", text="▶  Otimizar Bio"),
+            on_done=lambda: self._set_btn_ready(self.run_btn, "▶  Otimizar Bio"),
         )
 
     async def _bio_flow(self, settings, current_bio):
@@ -97,11 +97,11 @@ class BioPage(BasePage):
         competitor_bios: list[str] = []
         competitors = storage.load_competitors()
         if competitors:
-            from modules.scraper import get_profile_data
+            from modules.scraper import scrape_profile_page
             for username in competitors[:3]:
                 try:
-                    data = await get_profile_data(username, settings.get("ollama_url", ""))
-                    bio = data.get("bio", "")
+                    profile = await scrape_profile_page(username, delay=2.0)
+                    bio = profile.bio or ""
                     if bio:
                         competitor_bios.append(bio[:200])
                 except Exception:
