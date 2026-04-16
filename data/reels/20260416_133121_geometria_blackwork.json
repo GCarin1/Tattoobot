@@ -1,0 +1,22 @@
+{
+  "title": "Geometria Blackwork",
+  "hook": "Isso levou 4 horas...",
+  "duration_estimate": "20-30 segundos",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "timing": "0:00-0:03",
+      "visual": "close no stencil",
+      "voiceover": "",
+      "text_overlay": "4 horas depois..."
+    }
+  ],
+  "music_mood": "dark ambient",
+  "music_bpm": "80 BPM",
+  "caption": "legenda aqui",
+  "hashtags": [
+    "blackwork",
+    "tattoo"
+  ],
+  "cta": "me chama no DM"
+}
