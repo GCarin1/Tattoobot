@@ -116,6 +116,27 @@ class HomePage(BasePage):
         )
         about.pack(fill="x", pady=(8, 0))
 
+        # Secao de Analytics do Estoque embutida no dashboard
+        ctk.CTkLabel(
+            parent,
+            text="ANALYTICS DE ESTOQUE",
+            font=theme.FONT_SMALL,
+            text_color=theme.TEXT_MUTED,
+            anchor="w",
+        ).pack(fill="x", pady=(24, 8))
+
+        analytics_panel = ctk.CTkFrame(
+            parent,
+            fg_color=theme.BLACK_CARD,
+            corner_radius=theme.CARD_RADIUS,
+            border_color=theme.BLACK_BORDER,
+            border_width=1,
+        )
+        analytics_panel.pack(fill="x", pady=(0, 8))
+
+        from gui.pages.estoque_analytics import build_analytics_tab
+        build_analytics_tab(analytics_panel, app=self.app, page_ref=self, use_scroll=False, padx=12)
+
     def on_show(self) -> None:
         """Atualiza stats sempre que abrir o dashboard."""
         try:
