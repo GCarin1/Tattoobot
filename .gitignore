@@ -27,3 +27,4 @@ data/calendar.json
 data/estoque_history.json
 data/estoque.json
 data/growth.json
+.claude/*
