@@ -21,15 +21,22 @@ ASCII_LOGO = r"""
 """
 
 MENU_OPTIONS = [
-    ("1", "Engajamento Diario", "Perfis + sugestoes de comentarios IA", "engage"),
-    ("2", "Gerar Legendas", "Legendas com SEO, hashtags e CTA", "caption"),
-    ("3", "Ideias de Conteudo", "Sugestoes criativas para Instagram", "ideas"),
-    ("4", "Spy de Concorrentes", "Monitorar perfis de referencia", "spy"),
-    ("5", "Comparador de Perfis", "Seu perfil vs rival + plano de acao", "compare"),
-    ("6", "Growth Tracker", "Registrar e ver metricas", "growth"),
-    ("7", "Avaliar Tatuagem", "IA analisa sua tattoo e marca erros", "evaluate"),
-    ("8", "Configuracoes", "Gerenciar settings do bot", "config"),
-    ("0", "Sair", "Encerrar o TattooBot", "exit"),
+    # v1.0
+    ("1",  "Engajamento Diario",    "Perfis + sugestoes de comentarios IA",    "engage"),
+    ("2",  "Gerar Legendas",        "Legendas com SEO, hashtags e CTA",        "caption"),
+    ("3",  "Ideias de Conteudo",    "Sugestoes criativas para Instagram",       "ideas"),
+    ("4",  "Spy de Concorrentes",   "Monitorar perfis de referencia",           "spy"),
+    ("5",  "Comparador de Perfis",  "Seu perfil vs rival + plano de acao",      "compare"),
+    ("6",  "Growth Tracker",        "Registrar e ver metricas",                 "growth"),
+    ("7",  "Avaliar Tatuagem",      "IA analisa sua tattoo e marca erros",      "evaluate"),
+    # v2.0 — novas funcionalidades
+    ("8",  "Assistente de Reels",   "Roteiro completo + opcao de video",        "reels"),
+    ("9",  "Calendario Conteudo",   "Plano de posts semanal ou mensal",         "calendar"),
+    ("10", "Templates Atendimento", "Mensagens prontas DM e WhatsApp",          "dm"),
+    ("11", "Bio Optimizer",         "Analisa e otimiza sua bio do Instagram",   "bio"),
+    ("12", "Curador de Portfolio",  "Quais fotos postar e quando",              "portfolio"),
+    ("13", "Configuracoes",         "Gerenciar settings do bot",                "config"),
+    ("0",  "Sair",                  "Encerrar o TattooBot",                     "exit"),
 ]
 
 
@@ -37,7 +44,7 @@ def show_banner() -> None:
     """Exibe banner do TattooBot com ASCII art."""
     console.print(ASCII_LOGO, style="bold magenta")
     console.print("  [bold white]Seu assistente de crescimento no Instagram[/bold white]", justify="center")
-    console.print("  [dim]v1.0 | 100% seguro | IA local via Ollama[/dim]", justify="center")
+    console.print("  [dim]v2.0 | 100% seguro | Ollama · OpenAI · Anthropic[/dim]", justify="center")
     console.print()
 
 

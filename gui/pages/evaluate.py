@@ -143,7 +143,7 @@ class EvaluatePage(BasePage):
             return
 
         self._clear_results()
-        self.run_btn.configure(state="disabled", text="Analisando...")
+        self._set_btn_loading(self.run_btn, "Analisando...")
         self.status_label.configure(
             text="IA de visao processando... pode levar alguns minutos.",
             text_color=theme.TEXT_INFO,
@@ -154,9 +154,7 @@ class EvaluatePage(BasePage):
             coro_factory=lambda: self._evaluate_flow(settings, image_path),
             on_result=self._on_done,
             on_error=self._on_error,
-            on_done=lambda: self.run_btn.configure(
-                state="normal", text="▶  Avaliar com IA"
-            ),
+            on_done=lambda: self._set_btn_ready(self.run_btn, "▶  Avaliar com IA"),
         )
 
     async def _evaluate_flow(self, settings, image_path: Path):

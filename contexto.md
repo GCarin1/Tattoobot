@@ -190,3 +190,92 @@
 ### O que foi feito
 - Criado `start.bat` para Windows - duplo clique inicia Ollama e TattooBot automaticamente
 - O script inicia `ollama serve` em background, aguarda 3 segundos para subir, e executa `python main.py`
+
+---
+
+## 16/04/2026 - TattooBot Copilot v2.0
+
+### Decisoes de produto
+- Assistente de Reels em 3 camadas (script, moviepy, IA generativa com fallback Ollama)
+- Todas as novas features: Calendario, Templates DM, Bio Optimizer, Portfolio
+- APIs pagas opcionais configuráveis (OpenAI, Anthropic, Runway, Pika) - Ollama como fallback
+
+### Novos modulos criados
+
+#### modules/ai_client.py - Abstração de providers de IA
+- Suporte a Ollama (padrão/fallback), OpenAI e Anthropic
+- Fallback automático: se API key inválida/ausente → usa Ollama
+- Suporte a visão: OpenAI GPT-4o Vision + Ollama Vision
+- Geração de vídeo: Runway ML (gen3a_turbo) e Pika Labs com polling assíncrono
+
+#### modules/reels_assistant.py - Assistente de Reels (3 camadas)
+- Camada 1: gera roteiro JSON completo (hook, cenas com timing, text overlays, trilha, hashtags, legenda)
+- Camada 2: slideshow com moviepy (fotos do processo + text overlay + hook como cartão de abertura)
+- Camada 3: IA generativa via Runway ML ou Pika Labs (fallback para scripts se sem API key)
+- Salva em data/reels/ como JSON
+
+#### modules/content_calendar.py - Calendário de Conteúdo
+- Gera calendário semanal/quinzenal/mensal com distribuição por formato e objetivo
+- Considera sazonalidade brasileira
+- Exporta como CSV
+- Integrado com storage (salva últimos 12 calendários)
+
+#### modules/dm_templates.py - Templates de Atendimento
+- 8 templates embutidos (orçamento, agendamento, confirmação, pós-cuidados, follow-up, etc.)
+- Gerador de template customizado via IA com tom configurável (informal/formal/artístico)
+- Persistência de templates customizados em data/dm_templates.json
+- Menu interativo com listagem, visualização e cópia
+
+#### modules/bio_optimizer.py - Bio Optimizer
+- Analisa bio atual
+- Gera 3 versões otimizadas com foco diferente (alcance/conversão/autoridade)
+- Inclui análise da bio atual, palavras-chave, contagem de caracteres e dicas de CTA/emojis
+- Coleta bios de concorrentes monitorados como referência (opcional)
+- Histórico em data/bio_history.json
+
+#### modules/portfolio_curator.py - Curador de Portfolio
+- Analisa até 10 fotos de tattoos com IA de visão (score, potencial IG, temas)
+- Curadoria: ordem de postagem recomendada, fotos para segurar, dia sugerido, ângulo de legenda
+- Identifica gaps no portfolio (motivos ausentes, frequência baixa)
+- Dicas de melhores dias/horários por estilo
+- Histórico em data/portfolio.json
+
+### Atualizações em arquivos existentes
+
+#### config.py
+- VERSION bumped de "1.0.0" para "2.0.0"
+- Novos paths: REELS_DIR, CALENDAR_FILE, DM_TEMPLATES_FILE, BIO_HISTORY_FILE, PORTFOLIO_FILE
+
+#### utils/storage.py
+- load_settings() com novos defaults: ai_provider, openai_api_key, openai_model, anthropic_api_key,
+  anthropic_model, video_api_provider, video_api_key, tattoo_style_secondary
+- Novas funções: save_reel, get_recent_reels, load_calendar, save_calendar, load_dm_templates,
+  save_dm_templates, load_bio_history, save_bio_history, add_to_bio_history,
+  load_portfolio_data, save_portfolio_data
+
+#### utils/display.py
+- MENU_OPTIONS expandido: 8 → 13 funcionalidades (+ reels, calendar, dm, bio, portfolio)
+- Banner atualizado: v1.0 → v2.0
+
+#### main.py
+- Novas funções _run_*: _run_reels_menu, _run_calendar, _run_dm_templates, _run_bio_optimizer, _run_portfolio
+- Novos comandos CLI: reels [mode], calendar, dm, bio, portfolio
+- menu_actions dict expandido com todas as novas funções
+
+#### gui/app.py
+- 5 novas páginas no NAV_ITEMS: ReelsPage, CalendarPage, DmPage, BioPage, PortfolioPage
+- Label de versão no sidebar: v1.0 → v2.0
+
+#### gui/pages/settings.py
+- Novos campos no formulário: tattoo_style_secondary, ai_provider, openai_api_key, openai_model,
+  anthropic_api_key, anthropic_model, video_api_provider, video_api_key
+
+### Novas páginas GUI criadas
+- gui/pages/reels.py: formulário com descrição, duração, modo; renderiza roteiro em cards com cenas
+- gui/pages/calendar_page.py: seletor de período e posts/semana; renderiza posts com badge de formato
+- gui/pages/dm_page.py: tabs "Templates Prontos" + "Gerar com IA"; botão Copiar em cada template
+- gui/pages/bio_page.py: textarea de bio atual; cards de variantes com contagem de chars e botão Copiar
+- gui/pages/portfolio_page.py: file picker de pasta; renderiza curadoria e gaps
+
+### requirements.txt
+- moviepy>=1.0.3 adicionado como comentado (opcional, para Camada 2 dos Reels)

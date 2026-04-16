@@ -57,6 +57,12 @@ def load_settings() -> dict[str, Any]:
     Se o arquivo nao existir, cria com valores padrao.
     """
     defaults = {
+        # Perfil do artista
+        "artist_name": "",
+        "artist_city": "",
+        "tattoo_style": "blackwork",
+        "tattoo_style_secondary": "",  # v2.0: estilo secundario opcional
+        # Instagram
         "hashtags": [
             "blackworktattoo",
             "tattooart",
@@ -65,15 +71,23 @@ def load_settings() -> dict[str, Any]:
             "tatuagem",
         ],
         "profiles_per_day": 10,
-        "ollama_model": "llama3",
+        # Ollama (padrao / fallback)
         "ollama_url": "http://localhost:11434",
-        "language": "pt-br",
-        "competitor_profiles": [],
-        "tattoo_style": "blackwork",
-        "artist_name": "",
-        "artist_city": "",
-        "scraping_delay_seconds": 3,
+        "ollama_model": "llama3",
         "ollama_vision_model": "",
+        # v2.0: providers de IA opcionais
+        "ai_provider": "ollama",          # "ollama" | "openai" | "anthropic"
+        "openai_api_key": "",
+        "openai_model": "gpt-4o-mini",
+        "anthropic_api_key": "",
+        "anthropic_model": "claude-haiku-4-5-20251001",
+        # v2.0: provider de video opcional
+        "video_api_provider": "",         # "runway" | "pika"
+        "video_api_key": "",
+        # Geral
+        "language": "pt-br",
+        "scraping_delay_seconds": 3,
+        "competitor_profiles": [],
     }
     settings = read_json(SETTINGS_FILE, defaults)
     # Garante que todas as chaves padrao existam
@@ -178,3 +192,118 @@ def get_recent_idea_titles(limit: int = 30) -> list[str]:
     history = load_ideas_history()
     titles = [h.get("title", "").strip() for h in history if h.get("title")]
     return [t for t in titles[-limit:] if t]
+
+
+# ─── v2.0: Reels ─────────────────────────────────────────────────────────────
+
+
+def ensure_reels_dir() -> None:
+    """Garante que o diretorio de reels existe."""
+    from config import REELS_DIR
+    REELS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def save_reel(reel: dict[str, Any]) -> str:
+    """Salva roteiro de Reel em arquivo JSON. Retorna caminho do arquivo."""
+    from config import REELS_DIR
+    ensure_reels_dir()
+    today = datetime.now().strftime("%Y%m%d_%H%M%S")
+    slug = reel.get("title", "reel")[:30].lower().replace(" ", "_")
+    slug = "".join(c for c in slug if c.isalnum() or c == "_")
+    file_path = REELS_DIR / f"{today}_{slug}.json"
+    file_path.write_text(
+        json.dumps(reel, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return str(file_path)
+
+
+def get_recent_reels(limit: int = 10) -> list[dict[str, Any]]:
+    """Retorna os ultimos roteiros de Reels salvos."""
+    from config import REELS_DIR
+    if not REELS_DIR.exists():
+        return []
+    files = sorted(REELS_DIR.glob("*.json"), key=lambda f: f.stat().st_mtime, reverse=True)
+    reels = []
+    for f in files[:limit]:
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+            data["_file"] = str(f)
+            reels.append(data)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return reels
+
+
+# ─── v2.0: Calendario ────────────────────────────────────────────────────────
+
+
+def load_calendar() -> list[dict[str, Any]]:
+    """Carrega calendario de conteudo."""
+    from config import CALENDAR_FILE
+    return read_json(CALENDAR_FILE, [])
+
+
+def save_calendar(calendar: list[dict[str, Any]]) -> None:
+    """Salva calendario de conteudo."""
+    from config import CALENDAR_FILE
+    write_json(CALENDAR_FILE, calendar)
+
+
+# ─── v2.0: Templates de Atendimento ─────────────────────────────────────────
+
+
+def load_dm_templates() -> dict[str, Any]:
+    """Carrega templates de DM/WhatsApp salvos pelo usuario."""
+    from config import DM_TEMPLATES_FILE
+    return read_json(DM_TEMPLATES_FILE, {})
+
+
+def save_dm_templates(templates: dict[str, Any]) -> None:
+    """Salva templates de DM/WhatsApp."""
+    from config import DM_TEMPLATES_FILE
+    write_json(DM_TEMPLATES_FILE, templates)
+
+
+# ─── v2.0: Bio History ───────────────────────────────────────────────────────
+
+
+def load_bio_history() -> list[dict[str, Any]]:
+    """Carrega historico de bios geradas."""
+    from config import BIO_HISTORY_FILE
+    return read_json(BIO_HISTORY_FILE, [])
+
+
+def save_bio_history(history: list[dict[str, Any]]) -> None:
+    """Salva historico de bios geradas."""
+    from config import BIO_HISTORY_FILE
+    write_json(BIO_HISTORY_FILE, history)
+
+
+def add_to_bio_history(bio_variants: list[str], original_bio: str) -> None:
+    """Adiciona variantes de bio ao historico."""
+    history = load_bio_history()
+    entry = {
+        "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
+        "original": original_bio,
+        "variants": bio_variants,
+    }
+    history.append(entry)
+    if len(history) > 50:
+        history = history[-50:]
+    save_bio_history(history)
+
+
+# ─── v2.0: Portfolio ─────────────────────────────────────────────────────────
+
+
+def load_portfolio_data() -> dict[str, Any]:
+    """Carrega dados do curador de portfolio."""
+    from config import PORTFOLIO_FILE
+    return read_json(PORTFOLIO_FILE, {"sessions": [], "gaps": []})
+
+
+def save_portfolio_data(data: dict[str, Any]) -> None:
+    """Salva dados do curador de portfolio."""
+    from config import PORTFOLIO_FILE
+    write_json(PORTFOLIO_FILE, data)

@@ -15,11 +15,18 @@ from gui.pages.compare import ComparePage
 from gui.pages.growth import GrowthPage
 from gui.pages.evaluate import EvaluatePage
 from gui.pages.settings import SettingsPage
+# v2.0 — novas paginas
+from gui.pages.reels import ReelsPage
+from gui.pages.calendar_page import CalendarPage
+from gui.pages.dm_page import DmPage
+from gui.pages.bio_page import BioPage
+from gui.pages.portfolio_page import PortfolioPage
 from utils import storage
 
 
 # Lista de itens do menu lateral: (id, label, icone-texto, classe)
 NAV_ITEMS = [
+    # v1.0
     ("home",       "Dashboard",          "▲",  HomePage),
     ("engage",     "Engajamento",        "●",  EngagementPage),
     ("caption",    "Gerar Legendas",     "▼",  CaptionPage),
@@ -28,6 +35,13 @@ NAV_ITEMS = [
     ("compare",    "Comparar Perfis",    "◎",  ComparePage),
     ("growth",     "Growth Tracker",     "▣",  GrowthPage),
     ("evaluate",   "Avaliar Tattoo",     "▬",  EvaluatePage),
+    # v2.0
+    ("reels",      "Reels",              "▶",  ReelsPage),
+    ("calendar",   "Calendario",         "◈",  CalendarPage),
+    ("dm",         "Templates DM",       "✉",  DmPage),
+    ("bio",        "Bio Optimizer",      "◉",  BioPage),
+    ("portfolio",  "Portfolio",          "▰",  PortfolioPage),
+    # config
     ("settings",   "Configuracoes",      "⚙",  SettingsPage),
 ]
 
@@ -150,7 +164,7 @@ class TattooBotApp(ctk.CTk):
 
         ctk.CTkLabel(
             sidebar,
-            text="v1.0  ·  100% seguro",
+            text="v2.0  ·  100% seguro",
             font=(theme.FONT_FAMILY, 9),
             text_color=theme.TEXT_MUTED,
         ).grid(row=4, column=0, sticky="sew", pady=(0, 8))

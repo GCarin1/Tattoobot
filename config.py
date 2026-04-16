@@ -1,6 +1,5 @@
 """Configuracoes globais do TattooBot Copilot."""
 
-import os
 from pathlib import Path
 
 # Diretorio raiz do projeto
@@ -13,6 +12,13 @@ HISTORY_FILE: Path = DATA_DIR / "history.json"
 COMPETITORS_FILE: Path = DATA_DIR / "competitors.json"
 GROWTH_FILE: Path = DATA_DIR / "growth.json"
 IDEAS_HISTORY_FILE: Path = DATA_DIR / "ideas_history.json"
+
+# v2.0 — novos diretorios e arquivos de dados
+REELS_DIR: Path = DATA_DIR / "reels"
+CALENDAR_FILE: Path = DATA_DIR / "calendar.json"
+DM_TEMPLATES_FILE: Path = DATA_DIR / "dm_templates.json"
+BIO_HISTORY_FILE: Path = DATA_DIR / "bio_history.json"
+PORTFOLIO_FILE: Path = DATA_DIR / "portfolio.json"
 
 # Configuracoes de scraping
 USER_AGENTS: list[str] = [
@@ -28,5 +34,5 @@ MAX_REQUESTS_PER_SESSION: int = 30
 OLLAMA_TIMEOUT: int = 180
 
 # Versao
-VERSION: str = "1.0.0"
+VERSION: str = "2.0.0"
 APP_NAME: str = "TattooBot Copilot"

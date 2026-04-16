@@ -1,3 +1,22 @@
 __pycache__/
 *.pyc
 *.bak
+
+# Build e distribuição
+build/
+dist/
+*.egg-info/
+
+# Ambientes virtuais
+venv/
+.venv/
+env/
+.env
+
+# PyInstaller
+*.spec.bak
+
+# Dados gerados pela aplicação
+data/history.json
+data/competitors.json
+data/growth.json
