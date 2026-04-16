@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import re
+import unicodedata
 import uuid
 from datetime import datetime
 from io import StringIO
@@ -68,8 +69,14 @@ def calculate_total_value(items: list[dict[str, Any]]) -> float:
 
 _CSV_ALIASES: dict[str, list[str]] = {
     "name":       ["name", "nome", "produto", "item", "descricao", "description"],
-    "quantity":   ["quantity", "quantidade", "qtd", "qty", "estoque"],
-    "unit_price": ["unit_price", "preco", "price", "preco_unitario", "valor", "custo"],
+    "quantity":   [
+        "quantity", "quantidade", "qtd", "qty", "estoque",
+        "qtd_atual", "quantidade_atual", "estoque_atual", "current_stock",
+    ],
+    "unit_price": [
+        "unit_price", "preco", "price", "preco_unitario", "valor", "custo",
+        "preco_unit", "valor_unitario", "preco_unit_",
+    ],
     "category":   ["category", "categoria", "cat"],
     "unit":       ["unit", "unidade", "medida"],
     "supplier":   ["supplier", "fornecedor"],
@@ -77,38 +84,67 @@ _CSV_ALIASES: dict[str, list[str]] = {
 }
 
 
+def _strip_accents(text: str) -> str:
+    """Remove acentos (NFKD + descarta combining chars)."""
+    return "".join(
+        c for c in unicodedata.normalize("NFKD", text)
+        if not unicodedata.combining(c)
+    )
+
+
 def _normalize_header(raw: str) -> str:
-    key = raw.strip().lower().replace(" ", "_")
+    key = _strip_accents(raw.strip().lower()).replace(" ", "_")
     for field, aliases in _CSV_ALIASES.items():
         if key in aliases:
             return field
     return key
 
 
-def _parse_rows(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
+def _parse_number(raw: Any, default: float = 0.0) -> float:
+    """Converte string/numero em float, tolerante a formato BR.
+
+    Aceita: '5', '5.75', '5,75', 'R$ 5,75', '1.234,56', '1,234.56'.
+    Retorna `default` se nao for possivel converter.
+    """
+    if raw is None or raw == "":
+        return default
+    if isinstance(raw, (int, float)):
+        return float(raw)
+    s = re.sub(r"[^\d.,\-]", "", str(raw))
+    if not s or s in {"-", ".", ","}:
+        return default
+    if "," in s and "." in s:
+        # Se virgula vem depois do ponto: formato BR (1.234,56)
+        # Se ponto vem depois da virgula: formato US (1,234.56)
+        if s.rfind(",") > s.rfind("."):
+            s = s.replace(".", "").replace(",", ".")
+        else:
+            s = s.replace(",", "")
+    elif "," in s:
+        s = s.replace(",", ".")
+    try:
+        return float(s)
+    except ValueError:
+        return default
+
+
+def _parse_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for row in rows:
         norm = {_normalize_header(k): v for k, v in row.items()}
-        name = norm.get("name", "").strip()
+        name = str(norm.get("name", "") or "").strip()
         if not name:
             continue
-        try:
-            qty = float(norm.get("quantity", 0) or 0)
-        except ValueError:
-            qty = 0.0
-        try:
-            price_raw = str(norm.get("unit_price", "0") or "0")
-            price = float(re.sub(r"[^\d.,]", "", price_raw).replace(",", ".") or 0)
-        except ValueError:
-            price = 0.0
+        qty = _parse_number(norm.get("quantity"))
+        price = _parse_number(norm.get("unit_price"))
         items.append(new_item(
             name=name,
             quantity=qty,
             unit_price=price,
-            category=norm.get("category", ""),
-            unit=norm.get("unit", "unidades"),
-            supplier=norm.get("supplier", ""),
-            notes=norm.get("notes", ""),
+            category=str(norm.get("category", "") or ""),
+            unit=str(norm.get("unit", "") or "") or "unidades",
+            supplier=str(norm.get("supplier", "") or ""),
+            notes=str(norm.get("notes", "") or ""),
         ))
     return items
 
@@ -131,9 +167,13 @@ def parse_xlsx_bytes(data: bytes) -> list[dict[str, Any]]:
     rows = list(ws.iter_rows(values_only=True))
     if not rows:
         return []
-    headers = [str(c or "").strip() for c in rows[0]]
+    headers = [str(c).strip() if c is not None else "" for c in rows[0]]
     dicts = [
-        {headers[i]: str(cell or "").strip() for i, cell in enumerate(row)}
+        {
+            headers[i]: cell if cell is not None else ""
+            for i, cell in enumerate(row)
+            if i < len(headers) and headers[i]
+        }
         for row in rows[1:]
     ]
     return _parse_rows(dicts)
