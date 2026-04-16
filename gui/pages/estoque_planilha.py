@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from typing import Any
@@ -11,6 +12,15 @@ import customtkinter as ctk
 from gui import theme
 from modules import stock_manager
 from utils import storage
+
+
+# Permite vazio, ou digitos com no maximo um separador decimal (ponto ou virgula)
+_NUMERIC_RE = re.compile(r"^\d*[.,]?\d*$")
+
+
+def _is_valid_number_input(new_value: str) -> bool:
+    """Validator de Entry: aceita so digitos e um separador decimal."""
+    return new_value == "" or bool(_NUMERIC_RE.match(new_value))
 
 
 def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
@@ -114,15 +124,26 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
         row_frame = ctk.CTkFrame(scroll, fg_color=theme.BLACK_CARD, corner_radius=6)
         row_frame.pack(fill="x", pady=2)
 
-        name_var = tk.StringVar(value=item.get("name", ""))
-        cat_var = tk.StringVar(value=item.get("category", ""))
-        qty_var = tk.StringVar(value=str(item.get("quantity", 0)))
-        unit_var = tk.StringVar(value=item.get("unit", "unidades"))
-        price_var = tk.StringVar(value=str(item.get("unit_price", 0)))
+        def _fmt_number(val: Any) -> str:
+            try:
+                f = float(val)
+            except (TypeError, ValueError):
+                return ""
+            # Inteiro puro -> sem ".0"; senao mantem decimais em formato BR
+            if f == int(f):
+                return str(int(f))
+            return f"{f:.2f}".replace(".", ",")
 
-        def _make_entry(var: tk.StringVar, width: int) -> ctk.CTkEntry:
-            e = ctk.CTkEntry(
-                row_frame,
+        name_var = tk.StringVar(value=str(item.get("name", "") or ""))
+        cat_var = tk.StringVar(value=str(item.get("category", "") or ""))
+        qty_var = tk.StringVar(value=_fmt_number(item.get("quantity", 0)))
+        unit_var = tk.StringVar(value=str(item.get("unit", "") or "unidades"))
+        price_var = tk.StringVar(value=_fmt_number(item.get("unit_price", 0)))
+
+        vcmd_number = (row_frame.register(_is_valid_number_input), "%P")
+
+        def _make_entry(var: tk.StringVar, width: int, numeric: bool = False) -> ctk.CTkEntry:
+            kwargs: dict[str, Any] = dict(
                 textvariable=var,
                 width=width,
                 height=30,
@@ -132,6 +153,10 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
                 text_color=theme.TEXT_PRIMARY,
                 font=theme.FONT_SMALL,
             )
+            if numeric:
+                kwargs["validate"] = "key"
+                kwargs["validatecommand"] = vcmd_number
+            e = ctk.CTkEntry(row_frame, **kwargs)
             var.trace_add("write", lambda *_: _update_total_label(row_data))
             return e
 
@@ -139,9 +164,9 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
 
         name_entry = _make_entry(name_var, 160)
         cat_entry = _make_entry(cat_var, 100)
-        qty_entry = _make_entry(qty_var, 70)
+        qty_entry = _make_entry(qty_var, 70, numeric=True)
         unit_entry = _make_entry(unit_var, 80)
-        price_entry = _make_entry(price_var, 90)
+        price_entry = _make_entry(price_var, 90, numeric=True)
 
         total_lbl = ctk.CTkLabel(
             row_frame,
