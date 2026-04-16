@@ -36,8 +36,8 @@ def build_planilha_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
 
     _btn("Importar CSV", lambda: _import_file("csv")).pack(side="left", padx=(0, 6))
     _btn("Importar XLSX", lambda: _import_file("xlsx")).pack(side="left", padx=(0, 6))
-    _btn("Exportar CSV", _export_csv, color=theme.BLACK_HOVER).pack(side="left", padx=(0, 6))
-    _btn("+ Novo Item", _add_new_row).pack(side="left", padx=(0, 6))
+    _btn("Exportar CSV", lambda: _export_csv(), color=theme.BLACK_HOVER).pack(side="left", padx=(0, 6))
+    _btn("+ Novo Item", lambda: _add_new_row()).pack(side="left", padx=(0, 6))
 
     total_label = ctk.CTkLabel(
         toolbar,
