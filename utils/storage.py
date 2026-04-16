@@ -307,3 +307,30 @@ def save_portfolio_data(data: dict[str, Any]) -> None:
     """Salva dados do curador de portfolio."""
     from config import PORTFOLIO_FILE
     write_json(PORTFOLIO_FILE, data)
+
+
+# ─── v3.0: Estoque ───────────────────────────────────────────────────────────
+
+
+def load_estoque() -> dict[str, Any]:
+    """Carrega dados do estoque."""
+    from config import ESTOQUE_FILE
+    return read_json(ESTOQUE_FILE, {"items": [], "updated_at": ""})
+
+
+def save_estoque(data: dict[str, Any]) -> None:
+    """Salva dados do estoque."""
+    from config import ESTOQUE_FILE
+    write_json(ESTOQUE_FILE, data)
+
+
+def load_estoque_history() -> list[dict[str, Any]]:
+    """Carrega historico de snapshots mensais do estoque."""
+    from config import ESTOQUE_HISTORY_FILE
+    return read_json(ESTOQUE_HISTORY_FILE, [])
+
+
+def save_estoque_history(history: list[dict[str, Any]]) -> None:
+    """Salva historico de snapshots mensais do estoque."""
+    from config import ESTOQUE_HISTORY_FILE
+    write_json(ESTOQUE_HISTORY_FILE, history)
