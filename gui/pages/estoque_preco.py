@@ -1,4 +1,4 @@
-"""Tab 2 do Estoque: busca inteligente de precos (web + IA)."""
+"""Tab 2 do Estoque: busca de precos na web."""
 
 from __future__ import annotations
 
@@ -58,18 +58,6 @@ def build_preco_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
         font=theme.FONT_SMALL,
     )
     web_btn.pack(fill="x", pady=(0, 4))
-
-    ai_btn = ctk.CTkButton(
-        btn_frame,
-        text="Sugerir via IA",
-        height=34,
-        corner_radius=6,
-        fg_color=theme.RED_DEEP,
-        hover_color=theme.RED_PRIMARY,
-        text_color=theme.TEXT_PRIMARY,
-        font=theme.FONT_SMALL,
-    )
-    ai_btn.pack(fill="x")
 
     # ── Painel direito: resultados ─────────────────────────────────────────────
     right = ctk.CTkFrame(main, fg_color=theme.BLACK_PANEL, corner_radius=8)
@@ -150,7 +138,6 @@ def build_preco_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
     def _set_loading(loading: bool) -> None:
         state_text = "disabled" if loading else "normal"
         web_btn.configure(state=state_text)
-        ai_btn.configure(state=state_text)
         if loading:
             status_lbl.configure(text="Buscando...", text_color=theme.TEXT_WARNING)
         else:
@@ -246,22 +233,6 @@ def build_preco_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
             text_color=theme.TEXT_SUCCESS,
         )
 
-    def _render_ai_result(text: str) -> None:
-        _clear_results()
-        box = ctk.CTkTextbox(
-            results_scroll,
-            fg_color=theme.BLACK_CARD,
-            text_color=theme.TEXT_PRIMARY,
-            font=theme.FONT_MONO,
-            corner_radius=6,
-            wrap="word",
-            activate_scrollbars=True,
-        )
-        box.pack(fill="both", expand=True, padx=2, pady=2)
-        box.insert("1.0", text)
-        box.configure(state="disabled")
-        status_lbl.configure(text="Sugestoes da IA geradas.", text_color=theme.TEXT_SUCCESS)
-
     def _search_web() -> None:
         selected = _get_selected()
         if not selected:
@@ -280,28 +251,7 @@ def build_preco_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
             ),
         )
 
-    def _search_ai() -> None:
-        selected = _get_selected()
-        if not selected:
-            return
-        item_names = [it["name"] for it in selected]
-        current_prices = {it["name"]: float(it.get("unit_price", 0)) for it in selected}
-        settings = app.settings
-        _set_loading(True)
-        _clear_results()
-
-        task = AsyncTask(app)
-        task.run(
-            coro_factory=lambda: stock_manager.search_prices_ai(item_names, current_prices, settings),
-            on_result=lambda r: (_render_ai_result(r), _set_loading(False)),
-            on_error=lambda e: (
-                status_lbl.configure(text=f"Erro: {e}", text_color=theme.TEXT_DANGER),
-                _set_loading(False),
-            ),
-        )
-
     web_btn.configure(command=_search_web)
-    ai_btn.configure(command=_search_ai)
 
     _load_items()
     page_ref._preco_reload = _load_items

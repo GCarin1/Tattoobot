@@ -49,12 +49,22 @@ def _embed_figure(fig: Figure, parent: ctk.CTkFrame) -> FigureCanvasTkAgg:
     return canvas
 
 
-def build_analytics_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
-    """Monta a aba de analytics do estoque."""
+def build_analytics_tab(
+    parent: ctk.CTkFrame,
+    app: Any,
+    page_ref: Any,
+    use_scroll: bool = True,
+    padx: int = 16,
+) -> None:
+    """Monta a view de analytics do estoque.
+
+    Quando `use_scroll=False`, os graficos sao empacotados diretamente em
+    `parent` (util quando o parent ja possui scroll proprio, ex.: Dashboard).
+    """
 
     # ── Toolbar ────────────────────────────────────────────────────────────────
     toolbar = ctk.CTkFrame(parent, fg_color="transparent")
-    toolbar.pack(fill="x", padx=16, pady=(10, 6))
+    toolbar.pack(fill="x", padx=padx, pady=(10, 6))
 
     ctk.CTkLabel(
         toolbar,
@@ -76,16 +86,20 @@ def build_analytics_tab(parent: ctk.CTkFrame, app: Any, page_ref: Any) -> None:
     )
     snapshot_btn.pack(side="right")
 
-    ctk.CTkFrame(parent, height=1, fg_color=theme.BLACK_BORDER).pack(fill="x", padx=16, pady=(0, 8))
+    ctk.CTkFrame(parent, height=1, fg_color=theme.BLACK_BORDER).pack(fill="x", padx=padx, pady=(0, 8))
 
     # ── Area de graficos ──────────────────────────────────────────────────────
-    charts_scroll = ctk.CTkScrollableFrame(
-        parent,
-        fg_color="transparent",
-        scrollbar_button_color=theme.RED_DEEP,
-        scrollbar_button_hover_color=theme.RED_PRIMARY,
-    )
-    charts_scroll.pack(fill="both", expand=True, padx=16, pady=(0, 12))
+    if use_scroll:
+        charts_scroll = ctk.CTkScrollableFrame(
+            parent,
+            fg_color="transparent",
+            scrollbar_button_color=theme.RED_DEEP,
+            scrollbar_button_hover_color=theme.RED_PRIMARY,
+        )
+        charts_scroll.pack(fill="both", expand=True, padx=padx, pady=(0, 12))
+    else:
+        charts_scroll = ctk.CTkFrame(parent, fg_color="transparent")
+        charts_scroll.pack(fill="x", padx=padx, pady=(0, 12))
 
     state: dict[str, Any] = {"canvases": []}
 
