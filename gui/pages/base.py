@@ -41,6 +41,9 @@ class BasePage(ctk.CTkFrame):
     # ─── Layout ────────────────────────────────────────────────────────
 
     def _build_header(self) -> None:
+        # ACCENT na classe e congelado no import — resolvemos a cor viva agora.
+        accent = theme.RED_PRIMARY
+
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.grid(row=0, column=0, sticky="ew", padx=32, pady=(28, 4))
 
@@ -48,7 +51,7 @@ class BasePage(ctk.CTkFrame):
             header,
             text=self.TITLE,
             font=theme.FONT_TITLE,
-            text_color=self.ACCENT,
+            text_color=accent,
             anchor="w",
         ).pack(fill="x")
 
@@ -67,7 +70,7 @@ class BasePage(ctk.CTkFrame):
         ctk.CTkFrame(
             self,
             height=1,
-            fg_color=self.ACCENT,
+            fg_color=accent,
         ).grid(row=0, column=0, sticky="ews", padx=32, pady=(0, 0))
 
     def _build_scroll_area(self) -> None:
