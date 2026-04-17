@@ -4,6 +4,7 @@ __pycache__/
 
 # Build e distribuição
 build/
+reels/
 dist/
 *.egg-info/
 
@@ -20,3 +21,10 @@ env/
 data/history.json
 data/competitors.json
 data/growth.json
+data/bio_history.json
+data/calendar.json
+*.csv
+data/estoque_history.json
+data/estoque.json
+data/growth.json
+.claude/*

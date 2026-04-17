@@ -23,5 +23,7 @@
   "video_api_key": "",
   "language": "pt-br",
   "scraping_delay_seconds": 3,
-  "competitor_profiles": []
+  "competitor_profiles": [],
+  "theme_preset": "ink_blue",
+  "window_resolution": "fullhd"
 }
