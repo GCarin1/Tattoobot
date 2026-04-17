@@ -88,6 +88,9 @@ def load_settings() -> dict[str, Any]:
         "language": "pt-br",
         "scraping_delay_seconds": 3,
         "competitor_profiles": [],
+        # v3.0: aparencia
+        "theme_preset": "blackwork",
+        "window_resolution": "hd",
     }
     settings = read_json(SETTINGS_FILE, defaults)
     # Garante que todas as chaves padrao existam

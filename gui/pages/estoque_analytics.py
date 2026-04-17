@@ -17,29 +17,31 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-_DARK = {
-    "fig_bg": "#0a0a0a",
-    "ax_bg": "#1a1a1a",
-    "spine": "#2a2a2a",
-    "tick": "#A8A8A8",
-    "title": "#B00020",
-    "bar_color": "#B00020",
-    "line_color": "#FF1744",
-    "bar2_current": "#7a0016",
-    "bar2_found": "#4CAF50",
-    "label": "#A8A8A8",
-}
+def _theme_colors() -> dict[str, str]:
+    """Resolve as cores dos graficos a partir do tema ativo no momento."""
+    return {
+        "fig_bg": theme.BLACK_SOFT,
+        "ax_bg": theme.BLACK_CARD,
+        "spine": theme.BLACK_BORDER,
+        "tick": theme.TEXT_SECONDARY,
+        "title": theme.RED_PRIMARY,
+        "bar_color": theme.RED_PRIMARY,
+        "line_color": theme.RED_GLOW,
+        "bar2_current": theme.RED_DEEP,
+        "bar2_found": theme.TEXT_SUCCESS,
+        "label": theme.TEXT_SECONDARY,
+    }
 
 
-def _apply_dark(ax: Any, fig: Any) -> None:
-    fig.patch.set_facecolor(_DARK["fig_bg"])
-    ax.set_facecolor(_DARK["ax_bg"])
+def _apply_dark(ax: Any, fig: Any, colors: dict[str, str]) -> None:
+    fig.patch.set_facecolor(colors["fig_bg"])
+    ax.set_facecolor(colors["ax_bg"])
     for spine in ax.spines.values():
-        spine.set_edgecolor(_DARK["spine"])
-    ax.tick_params(colors=_DARK["tick"])
-    ax.xaxis.label.set_color(_DARK["label"])
-    ax.yaxis.label.set_color(_DARK["label"])
-    ax.title.set_color(_DARK["title"])
+        spine.set_edgecolor(colors["spine"])
+    ax.tick_params(colors=colors["tick"])
+    ax.xaxis.label.set_color(colors["label"])
+    ax.yaxis.label.set_color(colors["label"])
+    ax.title.set_color(colors["title"])
 
 
 def _embed_figure(fig: Figure, parent: ctk.CTkFrame) -> FigureCanvasTkAgg:
@@ -112,6 +114,7 @@ def build_analytics_tab(
 
     def _render_charts() -> None:
         _clear_charts()
+        colors = _theme_colors()
         history = storage.load_estoque_history()
 
         if not history:
@@ -146,20 +149,20 @@ def build_analytics_tab(
         chart1_frame.pack_propagate(False)
 
         if months:
-            fig1 = Figure(figsize=(8, 2.8), dpi=96, facecolor=_DARK["fig_bg"])
-            ax1 = fig1.add_subplot(111, facecolor=_DARK["ax_bg"])
-            bars = ax1.bar(months, total_values, color=_DARK["bar_color"], edgecolor=_DARK["spine"], linewidth=0.5)
-            ax1.set_ylabel("R$", color=_DARK["label"])
-            ax1.set_title("Valor Total do Estoque", color=_DARK["title"], pad=8)
+            fig1 = Figure(figsize=(8, 2.8), dpi=96, facecolor=colors["fig_bg"])
+            ax1 = fig1.add_subplot(111, facecolor=colors["ax_bg"])
+            bars = ax1.bar(months, total_values, color=colors["bar_color"], edgecolor=colors["spine"], linewidth=0.5)
+            ax1.set_ylabel("R$", color=colors["label"])
+            ax1.set_title("Valor Total do Estoque", color=colors["title"], pad=8)
             for bar, val in zip(bars, total_values):
                 ax1.text(
                     bar.get_x() + bar.get_width() / 2,
                     bar.get_height() + max(total_values) * 0.01,
                     f"R${val:.0f}",
                     ha="center", va="bottom",
-                    color=_DARK["tick"], fontsize=7,
+                    color=colors["tick"], fontsize=7,
                 )
-            _apply_dark(ax1, fig1)
+            _apply_dark(ax1, fig1, colors)
             fig1.tight_layout(pad=0.8)
             c1 = _embed_figure(fig1, chart1_frame)
             state["canvases"].append(c1)
@@ -218,13 +221,13 @@ def build_analytics_tab(
                 prices = [p if p is not None else 0 for p in item_data["prices"]]
 
                 if imonths:
-                    fig2 = Figure(figsize=(8, 2.8), dpi=96, facecolor=_DARK["fig_bg"])
-                    ax2 = fig2.add_subplot(111, facecolor=_DARK["ax_bg"])
-                    ax2.plot(imonths, prices, color=_DARK["line_color"], marker="o", linewidth=2, markersize=5)
-                    ax2.fill_between(imonths, prices, alpha=0.15, color=_DARK["line_color"])
-                    ax2.set_ylabel("R$ / unidade", color=_DARK["label"])
-                    ax2.set_title(f"Preco Unitario: {item_var.get()}", color=_DARK["title"], pad=8)
-                    _apply_dark(ax2, fig2)
+                    fig2 = Figure(figsize=(8, 2.8), dpi=96, facecolor=colors["fig_bg"])
+                    ax2 = fig2.add_subplot(111, facecolor=colors["ax_bg"])
+                    ax2.plot(imonths, prices, color=colors["line_color"], marker="o", linewidth=2, markersize=5)
+                    ax2.fill_between(imonths, prices, alpha=0.15, color=colors["line_color"])
+                    ax2.set_ylabel("R$ / unidade", color=colors["label"])
+                    ax2.set_title(f"Preco Unitario: {item_var.get()}", color=colors["title"], pad=8)
+                    _apply_dark(ax2, fig2, colors)
                     fig2.tight_layout(pad=0.8)
                     c2 = _embed_figure(fig2, chart2_frame)
                     canvas2_state["canvas"] = c2
@@ -269,22 +272,22 @@ def build_analytics_tab(
                 chart3_frame.pack_propagate(False)
 
                 fig3_h = max(2.5, len(names_cmp) * 0.5)
-                fig3 = Figure(figsize=(8, fig3_h), dpi=96, facecolor=_DARK["fig_bg"])
-                ax3 = fig3.add_subplot(111, facecolor=_DARK["ax_bg"])
+                fig3 = Figure(figsize=(8, fig3_h), dpi=96, facecolor=colors["fig_bg"])
+                ax3 = fig3.add_subplot(111, facecolor=colors["ax_bg"])
 
                 import numpy as np
                 y_pos = range(len(names_cmp))
                 bar_h = 0.35
                 ax3.barh([y + bar_h / 2 for y in y_pos], current_vals, height=bar_h,
-                         color=_DARK["bar2_current"], label="Atual")
+                         color=colors["bar2_current"], label="Atual")
                 ax3.barh([y - bar_h / 2 for y in y_pos], found_vals, height=bar_h,
-                         color=_DARK["bar2_found"], label="Encontrado")
+                         color=colors["bar2_found"], label="Encontrado")
                 ax3.set_yticks(list(y_pos))
-                ax3.set_yticklabels(names_cmp, color=_DARK["tick"], fontsize=8)
-                ax3.set_xlabel("R$", color=_DARK["label"])
-                ax3.set_title("Preco Atual vs Encontrado", color=_DARK["title"], pad=8)
-                ax3.legend(facecolor=_DARK["ax_bg"], edgecolor=_DARK["spine"], labelcolor=_DARK["tick"])
-                _apply_dark(ax3, fig3)
+                ax3.set_yticklabels(names_cmp, color=colors["tick"], fontsize=8)
+                ax3.set_xlabel("R$", color=colors["label"])
+                ax3.set_title("Preco Atual vs Encontrado", color=colors["title"], pad=8)
+                ax3.legend(facecolor=colors["ax_bg"], edgecolor=colors["spine"], labelcolor=colors["tick"])
+                _apply_dark(ax3, fig3, colors)
                 fig3.tight_layout(pad=0.8)
                 c3 = _embed_figure(fig3, chart3_frame)
                 state["canvases"].append(c3)
